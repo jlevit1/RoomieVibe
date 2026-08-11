@@ -10,6 +10,10 @@ public interface RoomListingService {
 
     RoomListingResponse create(String landlordEmail, CreateListingRequest request);
 
+    RoomListingResponse update(String landlordEmail, Long id, CreateListingRequest request);
+
+    void delete(String landlordEmail, Long id);
+
     RoomListingResponse getById(Long id);
 
     List<RoomListingResponse> getMine(String landlordEmail);

@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +42,21 @@ public class RoomListingController {
     @GetMapping("/{id}")
     public ResponseEntity<RoomListingResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(roomListingService.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<RoomListingResponse> update(Authentication authentication,
+                                                        @PathVariable Long id,
+                                                        @Valid @RequestBody CreateListingRequest request) {
+        return ResponseEntity.ok(roomListingService.update(authentication.getName(), id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<Void> delete(Authentication authentication, @PathVariable Long id) {
+        roomListingService.delete(authentication.getName(), id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/mine")
