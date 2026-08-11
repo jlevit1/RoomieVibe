@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
 
+import com.example.project.entity.Amenity;
 import com.example.project.entity.ListingStatus;
 
 import lombok.AllArgsConstructor;
@@ -21,14 +22,19 @@ public class RoomListingResponse {
     private String description;
     private BigDecimal price;
     private Double area;
+    private String city;
     private String district;
     private String address;
+    private Double latitude;
+    private Double longitude;
+    private String contactPhone;
     private Integer maxOccupants;
-    private Set<String> amenities;
+    private Set<Amenity> amenities;
     private Set<String> imageUrls;
     private ListingStatus status;
     private String rejectReason;
     private Integer viewCount;
     private Instant createdAt;
     private Instant updatedAt;
+    private Instant expiresAt;
 }

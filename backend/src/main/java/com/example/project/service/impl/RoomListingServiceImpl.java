@@ -35,22 +35,10 @@ public class RoomListingServiceImpl implements RoomListingService {
 
         RoomListing listing = RoomListing.builder()
                 .landlord(landlord)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .area(request.getArea())
-                .district(request.getDistrict())
-                .address(request.getAddress())
-                .maxOccupants(request.getMaxOccupants())
                 .status(ListingStatus.CHO_DUYET)
                 .build();
 
-        if (request.getAmenities() != null) {
-            listing.setAmenities(request.getAmenities());
-        }
-        if (request.getImageUrls() != null) {
-            listing.setImageUrls(request.getImageUrls());
-        }
+        applyRequest(listing, request);
 
         roomListingRepository.save(listing);
         return toResponse(listing);
@@ -65,12 +53,25 @@ public class RoomListingServiceImpl implements RoomListingService {
             throw new UnauthorizedException("Ban khong co quyen sua tin dang nay");
         }
 
+        applyRequest(listing, request);
+        listing.setStatus(ListingStatus.CHO_DUYET);
+        listing.setRejectReason(null);
+
+        roomListingRepository.save(listing);
+        return toResponse(listing);
+    }
+
+    private void applyRequest(RoomListing listing, CreateListingRequest request) {
         listing.setTitle(request.getTitle());
         listing.setDescription(request.getDescription());
         listing.setPrice(request.getPrice());
         listing.setArea(request.getArea());
+        listing.setCity(request.getCity());
         listing.setDistrict(request.getDistrict());
         listing.setAddress(request.getAddress());
+        listing.setLatitude(request.getLatitude());
+        listing.setLongitude(request.getLongitude());
+        listing.setContactPhone(request.getContactPhone());
         listing.setMaxOccupants(request.getMaxOccupants());
         if (request.getAmenities() != null) {
             listing.setAmenities(request.getAmenities());
@@ -78,12 +79,6 @@ public class RoomListingServiceImpl implements RoomListingService {
         if (request.getImageUrls() != null) {
             listing.setImageUrls(request.getImageUrls());
         }
-
-        listing.setStatus(ListingStatus.CHO_DUYET);
-        listing.setRejectReason(null);
-
-        roomListingRepository.save(listing);
-        return toResponse(listing);
     }
 
     @Override
@@ -160,8 +155,12 @@ public class RoomListingServiceImpl implements RoomListingService {
                 .description(listing.getDescription())
                 .price(listing.getPrice())
                 .area(listing.getArea())
+                .city(listing.getCity())
                 .district(listing.getDistrict())
                 .address(listing.getAddress())
+                .latitude(listing.getLatitude())
+                .longitude(listing.getLongitude())
+                .contactPhone(listing.getContactPhone())
                 .maxOccupants(listing.getMaxOccupants())
                 .amenities(listing.getAmenities())
                 .imageUrls(listing.getImageUrls())
@@ -170,6 +169,7 @@ public class RoomListingServiceImpl implements RoomListingService {
                 .viewCount(listing.getViewCount())
                 .createdAt(listing.getCreatedAt())
                 .updatedAt(listing.getUpdatedAt())
+                .expiresAt(listing.getExpiresAt())
                 .build();
     }
 }

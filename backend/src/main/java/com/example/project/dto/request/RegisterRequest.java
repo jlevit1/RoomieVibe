@@ -1,5 +1,7 @@
 package com.example.project.dto.request;
 
+import com.example.project.entity.Role;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,4 +24,7 @@ public class RegisterRequest {
     private String password;
 
     private String phone;
+
+    /** Chi cho phep USER hoac LANDLORD tu dang ky (ADMIN khong duoc tu tao). Mac dinh USER neu bo trong. */
+    private Role role;
 }

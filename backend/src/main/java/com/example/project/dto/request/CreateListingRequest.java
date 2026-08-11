@@ -3,6 +3,8 @@ package com.example.project.dto.request;
 import java.math.BigDecimal;
 import java.util.Set;
 
+import com.example.project.entity.Amenity;
+
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,15 +28,25 @@ public class CreateListingRequest {
     @Positive(message = "Dien tich phai lon hon 0")
     private Double area;
 
+    @NotBlank(message = "Tinh/thanh pho khong duoc de trong")
+    private String city;
+
     @NotBlank(message = "Quan/huyen khong duoc de trong")
     private String district;
 
     @NotBlank(message = "Dia chi khong duoc de trong")
     private String address;
 
+    private Double latitude;
+
+    private Double longitude;
+
+    @NotBlank(message = "So dien thoai lien he khong duoc de trong")
+    private String contactPhone;
+
     private Integer maxOccupants;
 
-    private Set<String> amenities;
+    private Set<Amenity> amenities;
 
     private Set<String> imageUrls;
 }

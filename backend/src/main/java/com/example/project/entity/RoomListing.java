@@ -55,18 +55,29 @@ public class RoomListing {
     private Double area;
 
     @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
     private String district;
 
     @Column(nullable = false)
     private String address;
 
+    private Double latitude;
+
+    private Double longitude;
+
+    @Column(nullable = false)
+    private String contactPhone;
+
     private Integer maxOccupants;
 
-    @ElementCollection
+    @ElementCollection(targetClass = Amenity.class)
     @CollectionTable(name = "room_listing_amenities", joinColumns = @JoinColumn(name = "listing_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "amenity")
     @Builder.Default
-    private Set<String> amenities = new HashSet<>();
+    private Set<Amenity> amenities = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "room_listing_images", joinColumns = @JoinColumn(name = "listing_id"))
@@ -91,10 +102,16 @@ public class RoomListing {
     @Column(nullable = false)
     private Instant updatedAt;
 
+    @Column(nullable = false)
+    private Instant expiresAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
+        if (this.expiresAt == null) {
+            this.expiresAt = this.createdAt.plus(java.time.Duration.ofDays(30));
+        }
     }
 
     @PreUpdate

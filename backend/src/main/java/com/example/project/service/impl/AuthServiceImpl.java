@@ -38,12 +38,17 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email da duoc su dung: " + request.getEmail());
         }
 
+        Role role = request.getRole() == null ? Role.USER : request.getRole();
+        if (role == Role.ADMIN) {
+            throw new BadRequestException("Khong the tu dang ky voi vai tro ADMIN");
+        }
+
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
-                .role(Role.USER)
+                .role(role)
                 .build();
 
         userRepository.save(user);
