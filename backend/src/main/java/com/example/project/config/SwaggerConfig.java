@@ -16,7 +16,7 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("RoomFinder API")
+                        .title("RoomieVibe API")
                         .description("API cho he thong tim phong tro va tim ban o ghep")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))

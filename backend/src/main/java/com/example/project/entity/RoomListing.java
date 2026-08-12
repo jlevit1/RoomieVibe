@@ -1,6 +1,7 @@
 package com.example.project.entity;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -110,7 +111,7 @@ public class RoomListing {
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         if (this.expiresAt == null) {
-            this.expiresAt = this.createdAt.plus(java.time.Duration.ofDays(30));
+            this.expiresAt = this.createdAt.plus(Duration.ofDays(30));
         }
     }
 

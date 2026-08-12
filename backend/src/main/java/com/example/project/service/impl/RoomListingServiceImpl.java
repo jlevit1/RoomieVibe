@@ -1,7 +1,10 @@
 package com.example.project.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,6 +108,14 @@ public class RoomListingServiceImpl implements RoomListingService {
 
         listing.setViewCount(listing.getViewCount() + 1);
         return toResponse(listing);
+    }
+
+    @Override
+    public Page<RoomListingResponse> search(String city, String district, BigDecimal minPrice,
+                                             BigDecimal maxPrice, Integer maxOccupants, Pageable pageable) {
+        return roomListingRepository
+                .search(ListingStatus.HIEN_THI, city, district, minPrice, maxPrice, maxOccupants, pageable)
+                .map(this::toResponse);
     }
 
     @Override
