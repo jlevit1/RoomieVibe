@@ -39,7 +39,7 @@ export default function MyListings() {
         <h1 className="text-2xl font-bold">Tin đăng của tôi</h1>
         <Link
           to="/listings/new"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700"
         >
           + Đăng tin mới
         </Link>
@@ -74,7 +74,7 @@ export default function MyListings() {
                   </span>
                   <Link
                     to={`/listings/${listing.id}/edit`}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-rose-600 hover:underline"
                   >
                     Sửa
                   </Link>

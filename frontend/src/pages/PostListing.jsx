@@ -197,7 +197,7 @@ export default function PostListing() {
                 onClick={() => toggleAmenity(amenity)}
                 className={`rounded-full border px-3 py-1.5 text-sm ${
                   form.amenities.includes(amenity)
-                    ? 'border-blue-600 bg-blue-600 text-white'
+                    ? 'border-rose-600 bg-rose-600 text-white'
                     : 'border-gray-300 text-gray-700'
                 }`}
               >
@@ -210,7 +210,7 @@ export default function PostListing() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-md bg-rose-600 py-2 text-white hover:bg-rose-700 disabled:opacity-50"
         >
           {loading ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Đăng tin'}
         </button>

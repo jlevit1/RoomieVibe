@@ -12,28 +12,28 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-      <Link to="/" className="text-xl font-bold text-blue-600">
+      <Link to="/" className="text-xl font-bold text-rose-600">
         RoomieVibe
       </Link>
 
       <div className="flex items-center gap-4 text-sm">
-        <Link to="/" className="text-gray-700 hover:text-blue-600">
+        <Link to="/search" className="text-gray-700 hover:text-rose-600">
           Tìm phòng
         </Link>
 
         {user?.role === 'LANDLORD' && (
           <>
-            <Link to="/listings/mine" className="text-gray-700 hover:text-blue-600">
+            <Link to="/listings/mine" className="text-gray-700 hover:text-rose-600">
               Tin của tôi
             </Link>
-            <Link to="/listings/new" className="text-gray-700 hover:text-blue-600">
+            <Link to="/listings/new" className="text-gray-700 hover:text-rose-600">
               Đăng tin
             </Link>
           </>
         )}
 
         {user?.role === 'ADMIN' && (
-          <Link to="/admin/pending" className="text-gray-700 hover:text-blue-600">
+          <Link to="/admin/pending" className="text-gray-700 hover:text-rose-600">
             Duyệt tin
           </Link>
         )}
@@ -50,12 +50,12 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <Link to="/login" className="text-gray-700 hover:text-blue-600">
+            <Link to="/login" className="text-gray-700 hover:text-rose-600">
               Đăng nhập
             </Link>
             <Link
               to="/register"
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+              className="rounded-md bg-rose-600 px-3 py-1.5 text-white hover:bg-rose-700"
             >
               Đăng ký
             </Link>

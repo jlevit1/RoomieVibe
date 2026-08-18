@@ -22,7 +22,7 @@ export default function ListingDetail() {
     return (
       <div className="mx-auto max-w-3xl px-6 py-10">
         <p className="text-red-600">{error}</p>
-        <Link to="/" className="text-blue-600 hover:underline">
+        <Link to="/" className="text-rose-600 hover:underline">
           Quay lại trang tìm phòng
         </Link>
       </div>
@@ -36,7 +36,7 @@ export default function ListingDetail() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">
       <h1 className="mb-2 text-2xl font-bold text-gray-900">{listing.title}</h1>
-      <p className="mb-4 text-2xl font-bold text-blue-600">{formatPrice(listing.price)}</p>
+      <p className="mb-4 text-2xl font-bold text-rose-600">{formatPrice(listing.price)}</p>
 
       <div className="mb-6 h-72 overflow-hidden rounded-lg bg-gray-100">
         {listing.imageUrls?.[0] ? (
@@ -88,7 +88,7 @@ export default function ListingDetail() {
             {listing.amenities.map((a) => (
               <span
                 key={a}
-                className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700"
+                className="rounded-full bg-rose-50 px-3 py-1 text-sm text-rose-700"
               >
                 {AMENITY_LABELS[a] || a}
               </span>

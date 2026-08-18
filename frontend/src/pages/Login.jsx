@@ -63,7 +63,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-md bg-rose-600 py-2 text-white hover:bg-rose-700 disabled:opacity-50"
         >
           {loading ? 'Đang xử lý...' : 'Đăng nhập'}
         </button>
@@ -71,7 +71,7 @@ export default function Login() {
 
       <p className="mt-4 text-sm text-gray-600">
         Chưa có tài khoản?{' '}
-        <Link to="/register" className="text-blue-600 hover:underline">
+        <Link to="/register" className="text-rose-600 hover:underline">
           Đăng ký
         </Link>
       </p>
