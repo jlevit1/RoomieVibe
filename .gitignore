@@ -38,3 +38,6 @@ frontend/dist/
 frontend/build/
 frontend/.env
 frontend/.env.local
+
+### Backend secrets ###
+backend/src/main/resources/application-local.properties

@@ -59,6 +59,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/roommate-profiles/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/roommate-profiles/browse", "/api/roommate-profiles/*")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

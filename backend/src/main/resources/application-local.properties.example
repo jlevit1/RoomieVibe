@@ -1,0 +1,7 @@
+spring.datasource.password=your-mysql-password
+
+jwt.secret=change-this-to-a-long-random-secret
+
+cloudinary.cloud-name=your-cloudinary-cloud-name
+cloudinary.api-key=your-cloudinary-api-key
+cloudinary.api-secret=your-cloudinary-api-secret

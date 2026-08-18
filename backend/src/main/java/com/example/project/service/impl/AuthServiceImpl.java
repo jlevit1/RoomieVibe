@@ -1,11 +1,14 @@
 package com.example.project.service.impl;
 
+import java.util.UUID;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.project.dto.request.GoogleLoginRequest;
 import com.example.project.dto.request.LoginRequest;
 import com.example.project.dto.request.RegisterRequest;
 import com.example.project.dto.response.AuthResponse;
@@ -15,9 +18,11 @@ import com.example.project.exception.BadRequestException;
 import com.example.project.exception.ResourceNotFoundException;
 import com.example.project.repository.UserRepository;
 import com.example.project.security.CustomUserDetailsService;
+import com.example.project.security.GoogleTokenVerifier;
 import com.example.project.security.JwtService;
 import com.example.project.security.TokenBlacklistService;
 import com.example.project.service.AuthService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final TokenBlacklistService blacklistService;
+    private final GoogleTokenVerifier googleTokenVerifier;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -71,6 +77,37 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtService.generateToken(userDetails);
 
         return buildAuthResponse(user, token);
+    }
+
+    @Override
+    public AuthResponse googleLogin(GoogleLoginRequest request) {
+        GoogleIdToken.Payload payload = googleTokenVerifier.verify(request.getIdToken());
+        String email = payload.getEmail();
+        String fullName = (String) payload.get("name");
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> registerGoogleUser(email, fullName, request.getRole()));
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        String token = jwtService.generateToken(userDetails);
+
+        return buildAuthResponse(user, token);
+    }
+
+    private User registerGoogleUser(String email, String fullName, Role requestedRole) {
+        Role role = requestedRole == null ? Role.USER : requestedRole;
+        if (role == Role.ADMIN) {
+            throw new BadRequestException("Khong the tu dang ky voi vai tro ADMIN");
+        }
+
+        User user = User.builder()
+                .fullName(fullName != null ? fullName : email)
+                .email(email)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .role(role)
+                .build();
+
+        return userRepository.save(user);
     }
 
     @Override
