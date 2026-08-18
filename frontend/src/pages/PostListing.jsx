@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createListing, getMyListings, updateListing } from '../services/listingService';
 import { AMENITY_LABELS, AMENITY_OPTIONS } from '../constants/amenities';
+import ImageUploader from '../components/ImageUploader';
 
 const EMPTY_FORM = {
   title: '',
@@ -14,6 +15,7 @@ const EMPTY_FORM = {
   contactPhone: '',
   maxOccupants: '',
   amenities: [],
+  imageUrls: [],
 };
 
 export default function PostListing() {
@@ -60,7 +62,6 @@ export default function PostListing() {
         price: Number(form.price),
         area: form.area ? Number(form.area) : null,
         maxOccupants: form.maxOccupants ? Number(form.maxOccupants) : null,
-        imageUrls: [],
       };
       if (isEdit) {
         await updateListing(id, payload);
@@ -185,6 +186,14 @@ export default function PostListing() {
               className="w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-700">Ảnh phòng</label>
+          <ImageUploader
+            images={form.imageUrls}
+            onChange={(imageUrls) => setForm({ ...form, imageUrls })}
+          />
         </div>
 
         <div>

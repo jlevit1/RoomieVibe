@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -24,6 +25,16 @@ export default function Login() {
       setError(err.response?.data?.message || 'Đăng nhập thất bại');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleSuccess(credentialResponse) {
+    setError('');
+    try {
+      await googleLogin(credentialResponse.credential);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đăng nhập Google thất bại');
     }
   }
 
@@ -68,6 +79,19 @@ export default function Login() {
           {loading ? 'Đang xử lý...' : 'Đăng nhập'}
         </button>
       </form>
+
+      <div className="my-4 flex items-center gap-3">
+        <div className="h-px flex-1 bg-gray-200" />
+        <span className="text-xs text-gray-400">hoặc</span>
+        <div className="h-px flex-1 bg-gray-200" />
+      </div>
+
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError('Đăng nhập Google thất bại')}
+        />
+      </div>
 
       <p className="mt-4 text-sm text-gray-600">
         Chưa có tài khoản?{' '}

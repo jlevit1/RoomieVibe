@@ -35,7 +35,7 @@ export default function ListingCard({ listing }) {
           </h3>
         </div>
         <div className="mb-1.5 flex items-center justify-between">
-          <p className="text-lg font-bold text-rose-600">{formatPrice(listing.price)}</p>
+          <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>
           <StarRating rating={rating} count={count} />
         </div>
         <p className="text-sm text-gray-500">

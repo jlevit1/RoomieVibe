@@ -8,6 +8,10 @@ export function login(data) {
   return api.post('/auth/login', data).then((res) => res.data);
 }
 
+export function googleLogin(idToken, role) {
+  return api.post('/auth/google', { idToken, role }).then((res) => res.data);
+}
+
 export function logout() {
   return api.post('/auth/logout').then((res) => res.data);
 }

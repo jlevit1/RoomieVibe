@@ -69,7 +69,7 @@ export default function ListingListItem({ listing, featured = false }) {
         <FavoriteButton />
         <div>
           <p className="text-xs text-gray-400">Giá thuê</p>
-          <p className="text-lg font-bold text-rose-600">{formatPrice(listing.price)}</p>
+          <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>
           <p className="text-xs text-gray-400">{listing.area} m²</p>
         </div>
         <span className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white transition-colors group-hover:bg-rose-700">

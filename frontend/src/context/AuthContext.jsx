@@ -28,6 +28,12 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  async function googleLogin(idToken, role) {
+    const data = await authService.googleLogin(idToken, role);
+    saveSession(data);
+    return data;
+  }
+
   async function logout() {
     try {
       await authService.logout();
@@ -39,7 +45,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, googleLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

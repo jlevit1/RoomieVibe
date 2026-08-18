@@ -97,7 +97,7 @@ export default function ListingDetail() {
               <StarRating rating={rating} count={count} />
             </div>
             <p className="mb-3 text-gray-500">{listing.address}, {listing.district}, {listing.city}</p>
-            <p className="text-2xl font-bold text-rose-600">{formatPrice(listing.price)}</p>
+            <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>
           </div>
 
           {/* Highlights */}

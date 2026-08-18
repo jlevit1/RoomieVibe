@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: '',
@@ -30,6 +31,16 @@ export default function Register() {
       setError(err.response?.data?.message || 'Đăng ký thất bại');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleSuccess(credentialResponse) {
+    setError('');
+    try {
+      await googleLogin(credentialResponse.credential, form.role);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đăng ký Google thất bại');
     }
   }
 
@@ -109,6 +120,22 @@ export default function Register() {
           {loading ? 'Đang xử lý...' : 'Đăng ký'}
         </button>
       </form>
+
+      <div className="my-4 flex items-center gap-3">
+        <div className="h-px flex-1 bg-gray-200" />
+        <span className="text-xs text-gray-400">hoặc</span>
+        <div className="h-px flex-1 bg-gray-200" />
+      </div>
+
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError('Đăng ký Google thất bại')}
+        />
+      </div>
+      <p className="mt-2 text-center text-xs text-gray-400">
+        Đăng ký Google sẽ dùng vai trò đã chọn ở trên ("Bạn là")
+      </p>
 
       <p className="mt-4 text-sm text-gray-600">
         Đã có tài khoản?{' '}
