@@ -19,6 +19,8 @@ public interface RoomListingRepository extends JpaRepository<RoomListing, Long> 
 
     List<RoomListing> findByStatusOrderByCreatedAtDesc(ListingStatus status);
 
+    long countByStatus(ListingStatus status);
+
     @Query("SELECT r FROM RoomListing r WHERE r.status = :status "
             + "AND (:city IS NULL OR r.city = :city) "
             + "AND (:district IS NULL OR r.district = :district) "

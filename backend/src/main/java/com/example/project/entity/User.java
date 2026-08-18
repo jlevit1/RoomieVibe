@@ -46,6 +46,10 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean enabled = true;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
