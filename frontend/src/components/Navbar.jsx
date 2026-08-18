@@ -33,8 +33,8 @@ export default function Navbar() {
         )}
 
         {user?.role === 'ADMIN' && (
-          <Link to="/admin/pending" className="text-gray-700 hover:text-rose-600">
-            Duyệt tin
+          <Link to="/admin" className="text-gray-700 hover:text-rose-600">
+            Quản trị
           </Link>
         )}
 
