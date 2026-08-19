@@ -106,7 +106,7 @@ export default function SearchResults() {
         <aside className="lg:col-span-1">
           <form
             onSubmit={applyFilters}
-            className="sticky top-4 space-y-4 rounded-lg border border-gray-200 p-4"
+            className="sticky top-4 space-y-4 rounded-2xl border border-gray-200 p-5"
           >
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-gray-900">Bộ lọc</h2>
@@ -132,7 +132,7 @@ export default function SearchResults() {
                 id="filter-city"
                 value={draft.city}
                 onChange={(e) => setDraft({ ...draft, city: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
               />
             </div>
 
@@ -147,7 +147,7 @@ export default function SearchResults() {
                 id="filter-district"
                 value={draft.district}
                 onChange={(e) => setDraft({ ...draft, district: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
               />
             </div>
 
@@ -165,7 +165,7 @@ export default function SearchResults() {
                   placeholder="Từ"
                   value={draft.minPrice}
                   onChange={(e) => setDraft({ ...draft, minPrice: e.target.value })}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                 />
                 <span className="text-gray-400">-</span>
                 <input
@@ -173,14 +173,14 @@ export default function SearchResults() {
                   placeholder="Đến"
                   value={draft.maxPrice}
                   onChange={(e) => setDraft({ ...draft, maxPrice: e.target.value })}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-md bg-rose-600 py-2 text-sm font-medium text-white hover:bg-rose-700"
+              className="w-full rounded-full bg-rose-600 py-2.5 text-sm font-medium text-white transition-all hover:bg-rose-700 active:scale-[0.98]"
             >
               Áp dụng bộ lọc
             </button>
@@ -206,18 +206,18 @@ export default function SearchResults() {
               )}
             </div>
 
-            <div className="flex overflow-hidden rounded-md border border-gray-300">
+            <div className="flex overflow-hidden rounded-full border border-gray-300">
               <button
                 type="button"
                 onClick={() => setView('list')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm ${view === 'list' ? 'bg-rose-600 text-white' : 'bg-white text-gray-600'}`}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm transition-colors ${view === 'list' ? 'bg-rose-600 text-white' : 'bg-white text-gray-600'}`}
               >
                 <List size={15} /> Danh sách
               </button>
               <button
                 type="button"
                 onClick={() => setView('grid')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm ${view === 'grid' ? 'bg-rose-600 text-white' : 'bg-white text-gray-600'}`}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm transition-colors ${view === 'grid' ? 'bg-rose-600 text-white' : 'bg-white text-gray-600'}`}
               >
                 <LayoutGrid size={15} /> Lưới
               </button>
@@ -242,10 +242,27 @@ export default function SearchResults() {
             ))}
           </div>
 
-          {loading && <p className="text-gray-500">Đang tải...</p>}
+          {loading && (
+            <div className="space-y-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="h-32 animate-pulse rounded-2xl border border-gray-200 bg-gray-50" />
+              ))}
+            </div>
+          )}
 
           {!loading && data.content.length === 0 && (
-            <p className="text-gray-500">Không tìm thấy tin đăng nào phù hợp.</p>
+            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-gray-300 py-16 text-center">
+              <p className="text-gray-500">Không tìm thấy tin đăng nào phù hợp.</p>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-sm font-medium text-rose-600 hover:underline"
+                >
+                  Xóa bộ lọc
+                </button>
+              )}
+            </div>
           )}
 
           {!loading && data.content.length > 0 && (

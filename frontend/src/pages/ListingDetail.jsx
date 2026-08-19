@@ -58,7 +58,7 @@ export default function ListingDetail() {
         {/* Main content */}
         <div className="lg:col-span-2">
           {/* Gallery */}
-          <div className="relative mb-3 h-80 overflow-hidden rounded-xl bg-gray-100">
+          <div className="relative mb-3 h-80 overflow-hidden rounded-2xl bg-gray-100">
             <FavoriteButton className="absolute right-3 top-3 z-10" />
             {images.length > 0 ? (
               <img
@@ -80,7 +80,7 @@ export default function ListingDetail() {
                   type="button"
                   key={img}
                   onClick={() => setActiveImage(idx)}
-                  className={`h-16 w-24 flex-shrink-0 overflow-hidden rounded-md border-2 ${
+                  className={`h-16 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 ${
                     idx === activeImage ? 'border-rose-600' : 'border-transparent'
                   }`}
                 >
@@ -102,7 +102,7 @@ export default function ListingDetail() {
 
           {/* Highlights */}
           {listing.amenities?.length > 0 && (
-            <div className="mb-6 grid grid-cols-2 gap-3 rounded-lg border border-gray-200 p-4 sm:grid-cols-4">
+            <div className="mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-gray-200 p-4 sm:grid-cols-4">
               {listing.amenities.slice(0, 8).map((a) => {
                 const Icon = AMENITY_ICONS[a];
                 return (
@@ -116,7 +116,7 @@ export default function ListingDetail() {
           )}
 
           {/* Quick stats */}
-          <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg border border-gray-200 p-4 text-sm sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 rounded-2xl border border-gray-200 p-4 text-sm sm:grid-cols-4">
             <div>
               <p className="text-gray-500">Diện tích</p>
               <p className="font-medium">{listing.area} m²</p>
@@ -165,15 +165,15 @@ export default function ListingDetail() {
           {/* Map placeholder */}
           <div>
             <h2 className="mb-2 font-semibold text-gray-900">Vị trí</h2>
-            <div className="flex h-56 items-center justify-center rounded-lg bg-gradient-to-br from-rose-100 via-rose-50 to-white text-sm text-rose-700">
-              🗺️ Bản đồ sẽ sớm ra mắt
+            <div className="flex h-56 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 via-rose-50 to-white text-sm text-rose-700">
+              Bản đồ sẽ sớm ra mắt
             </div>
           </div>
         </div>
 
         {/* Sticky contact card */}
         <div className="lg:col-span-1">
-          <div className="sticky top-4 space-y-3 rounded-lg border border-gray-200 p-4">
+          <div className="sticky top-4 space-y-3 rounded-2xl border border-gray-200 p-5">
             <p className="text-sm text-gray-500">Liên hệ chủ nhà</p>
             <p className="font-semibold text-gray-900">{listing.landlordName}</p>
             <p className="flex items-center gap-2 text-lg font-bold text-rose-600">
@@ -181,7 +181,7 @@ export default function ListingDetail() {
             </p>
             <a
               href={`tel:${listing.contactPhone}`}
-              className="block w-full rounded-md bg-rose-600 py-2.5 text-center text-sm font-medium text-white hover:bg-rose-700"
+              className="block w-full rounded-full bg-rose-600 py-2.5 text-center text-sm font-medium text-white transition-all hover:bg-rose-700 active:scale-[0.98]"
             >
               Gọi ngay
             </a>

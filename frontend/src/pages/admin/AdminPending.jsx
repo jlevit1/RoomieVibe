@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, X, ClipboardCheck } from 'lucide-react';
 import { approveListing, getPendingListings, rejectListing } from '../../services/listingService';
 
 function formatPrice(price) {
@@ -35,18 +35,31 @@ export default function AdminPending() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Tin đăng chờ duyệt</h1>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-gray-900">Tin đăng chờ duyệt</h1>
+      <p className="mb-6 text-sm text-gray-500">{listings.length} tin đang chờ xử lý.</p>
 
-      {loading && <p className="text-gray-500">Đang tải...</p>}
+      {loading && (
+        <div className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-24 animate-pulse rounded-2xl border border-gray-200 bg-gray-50" />
+          ))}
+        </div>
+      )}
 
       {!loading && listings.length === 0 && (
-        <p className="text-gray-500">Không có tin nào chờ duyệt.</p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-gray-300 py-16 text-center">
+          <ClipboardCheck size={28} className="text-gray-300" />
+          <p className="text-gray-500">Không có tin nào chờ duyệt.</p>
+        </div>
       )}
 
       {!loading && listings.length > 0 && (
         <div className="space-y-3">
           {listings.map((listing) => (
-            <div key={listing.id} className="rounded-lg border border-gray-200 p-4">
+            <div
+              key={listing.id}
+              className="rounded-2xl border border-gray-200 p-5 transition-colors hover:border-gray-300"
+            >
               <div className="mb-2 flex items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold text-gray-900">{listing.title}</p>
@@ -60,14 +73,14 @@ export default function AdminPending() {
                   <button
                     type="button"
                     onClick={() => handleApprove(listing.id)}
-                    className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700"
+                    className="flex items-center gap-1 rounded-full bg-green-600 px-3.5 py-1.5 text-sm text-white transition-colors hover:bg-green-700"
                   >
                     <Check size={14} /> Duyệt
                   </button>
                   <button
                     type="button"
                     onClick={() => handleReject(listing.id)}
-                    className="flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700"
+                    className="flex items-center gap-1 rounded-full bg-red-600 px-3.5 py-1.5 text-sm text-white transition-colors hover:bg-red-700"
                   >
                     <X size={14} /> Từ chối
                   </button>

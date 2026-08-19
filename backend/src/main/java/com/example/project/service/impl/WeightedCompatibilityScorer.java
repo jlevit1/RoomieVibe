@@ -2,8 +2,10 @@ package com.example.project.service.impl;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -32,9 +34,18 @@ public class WeightedCompatibilityScorer implements CompatibilityScorer {
     }
 
     private double areaScore(RoommateProfile a, RoommateProfile b) {
-        Set<String> aDistricts = a.getDistricts() == null ? Collections.emptySet() : a.getDistricts();
-        Set<String> bDistricts = b.getDistricts() == null ? Collections.emptySet() : b.getDistricts();
+        Set<String> aDistricts = normalizeDistricts(a.getDistricts());
+        Set<String> bDistricts = normalizeDistricts(b.getDistricts());
         return aDistricts.stream().anyMatch(bDistricts::contains) ? 1.0 : 0.0;
+    }
+
+    private Set<String> normalizeDistricts(Set<String> districts) {
+        if (districts == null) {
+            return Collections.emptySet();
+        }
+        return districts.stream()
+                .map(d -> d.trim().toLowerCase(Locale.ROOT))
+                .collect(Collectors.toSet());
     }
 
     private double budgetScore(RoommateProfile a, RoommateProfile b) {

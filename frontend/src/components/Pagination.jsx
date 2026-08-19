@@ -23,7 +23,7 @@ export default function Pagination({ page, totalPages, onChange }) {
         type="button"
         disabled={page === 0}
         onClick={() => onChange(page - 1)}
-        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
+        className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
       >
         Trước
       </button>
@@ -38,7 +38,7 @@ export default function Pagination({ page, totalPages, onChange }) {
             type="button"
             key={p}
             onClick={() => onChange(p)}
-            className={`h-8 w-8 rounded-md text-sm transition-colors ${
+            className={`h-8 w-8 rounded-xl text-sm transition-colors ${
               p === page ? 'bg-rose-600 text-white' : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
@@ -51,7 +51,7 @@ export default function Pagination({ page, totalPages, onChange }) {
         type="button"
         disabled={page + 1 >= totalPages}
         onClick={() => onChange(page + 1)}
-        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
+        className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
       >
         Sau
       </button>

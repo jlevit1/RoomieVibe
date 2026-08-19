@@ -23,18 +23,28 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+      <p className="mb-6 text-sm text-gray-500">Tổng quan hoạt động của hệ thống.</p>
 
-      {loading && <p className="text-gray-500">Đang tải...</p>}
+      {loading && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {CARD_CONFIG.map(({ key }) => (
+            <div key={key} className="h-28 animate-pulse rounded-2xl border border-gray-200 bg-gray-50" />
+          ))}
+        </div>
+      )}
 
       {!loading && stats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {CARD_CONFIG.map(({ key, label, Icon, color }) => (
-            <div key={key} className="rounded-lg border border-gray-200 p-4">
-              <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
+            <div
+              key={key}
+              className="rounded-2xl border border-gray-200 p-5 transition-colors hover:border-gray-300"
+            >
+              <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full ${color}`}>
                 <Icon size={20} />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stats[key]}</p>
+              <p className="text-2xl font-bold tracking-tight text-gray-900">{stats[key]}</p>
               <p className="text-sm text-gray-500">{label}</p>
             </div>
           ))}

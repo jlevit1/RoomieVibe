@@ -34,7 +34,7 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }) {
     <div>
       <div className="flex flex-wrap gap-3">
         {images.map((url) => (
-          <div key={url} className="relative h-24 w-24 overflow-hidden rounded-md border border-gray-200">
+          <div key={url} className="relative h-24 w-24 overflow-hidden rounded-xl border border-gray-200">
             <img src={url} alt="" className="h-full w-full object-cover" />
             <button
               type="button"
@@ -51,7 +51,7 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }) {
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-gray-300 text-gray-400 hover:border-rose-400 hover:text-rose-500"
+            className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-rose-400 hover:text-rose-500"
           >
             {uploading ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
             <span className="text-xs">{uploading ? 'Đang tải...' : 'Thêm ảnh'}</span>

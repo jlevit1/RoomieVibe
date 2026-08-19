@@ -24,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoommateProfileServiceImpl implements RoommateProfileService {
 
-    private static final int MIN_COMPATIBILITY_SCORE = 60;
-
     private final RoommateProfileRepository roommateProfileRepository;
     private final UserRepository userRepository;
     private final CompatibilityScorer compatibilityScorer;
@@ -88,7 +86,6 @@ public class RoommateProfileServiceImpl implements RoommateProfileService {
                     int score = compatibilityScorer.score(myProfile, other);
                     return toResponse(other, score, false);
                 })
-                .filter(res -> res.getCompatibilityScore() >= MIN_COMPATIBILITY_SCORE)
                 .sorted(Comparator.comparingInt(RoommateProfileResponse::getCompatibilityScore).reversed())
                 .toList();
 

@@ -84,24 +84,24 @@ export default function RoommateProfileForm() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">Hồ sơ tìm bạn ở ghép</h1>
+    <div className="mx-auto max-w-2xl px-6 py-10">
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-gray-900">Hồ sơ tìm bạn ở ghép</h1>
       <p className="mb-6 text-sm text-gray-500">
         Điền hồ sơ lối sống để hệ thống tính % tương thích và gợi ý người phù hợp.
       </p>
 
       {error && (
-        <div className="mb-4 rounded-md bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>
+        <div className="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Tình trạng</label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">Tình trạng</label>
           <select
             name="status"
             value={form.status}
             onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
           >
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -113,17 +113,17 @@ export default function RoommateProfileForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Tỉnh/thành phố</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Tỉnh/thành phố</label>
             <input
               name="city"
               value={form.city}
               onChange={handleChange}
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Khu vực mong muốn
             </label>
             <input
@@ -131,7 +131,7 @@ export default function RoommateProfileForm() {
               placeholder="VD: Quận 10, Quận 1"
               value={form.districts}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             />
             <p className="mt-1 text-xs text-gray-400">Nhiều quận/huyện cách nhau bằng dấu phẩy</p>
           </div>
@@ -139,7 +139,7 @@ export default function RoommateProfileForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Ngân sách (đ/người/tháng)
             </label>
             <input
@@ -148,11 +148,11 @@ export default function RoommateProfileForm() {
               value={form.budget}
               onChange={handleChange}
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Dự kiến chuyển vào
             </label>
             <input
@@ -160,19 +160,19 @@ export default function RoommateProfileForm() {
               name="moveInDate"
               value={form.moveInDate}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Giới tính</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Giới tính</label>
             <select
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             >
               {Object.entries(GENDER_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -182,14 +182,14 @@ export default function RoommateProfileForm() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Giới tính bạn ghép mong muốn
             </label>
             <select
               name="preferredGender"
               value={form.preferredGender}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             >
               <option value="">Không yêu cầu</option>
               {Object.entries(GENDER_LABELS).map(([value, label]) => (
@@ -203,12 +203,12 @@ export default function RoommateProfileForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Nghề nghiệp</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Nghề nghiệp</label>
             <select
               name="occupation"
               value={form.occupation}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             >
               {Object.entries(OCCUPATION_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -218,14 +218,14 @@ export default function RoommateProfileForm() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Nghề nghiệp bạn ghép mong muốn
             </label>
             <select
               name="preferredOccupation"
               value={form.preferredOccupation}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             >
               <option value="">Không yêu cầu</option>
               {Object.entries(OCCUPATION_LABELS).map(([value, label]) => (
@@ -239,12 +239,12 @@ export default function RoommateProfileForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Giờ giấc</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Giờ giấc</label>
             <select
               name="sleepSchedule"
               value={form.sleepSchedule}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             >
               {Object.entries(SLEEP_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -254,12 +254,12 @@ export default function RoommateProfileForm() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Mức độ gọn gàng</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Mức độ gọn gàng</label>
             <select
               name="cleanliness"
               value={form.cleanliness}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             >
               {Object.entries(CLEANLINESS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -270,7 +270,7 @@ export default function RoommateProfileForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 rounded-lg border border-gray-200 p-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 rounded-2xl border border-gray-200 p-4 sm:grid-cols-4">
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" name="smokes" checked={form.smokes} onChange={handleChange} />
             Hút thuốc
@@ -309,7 +309,7 @@ export default function RoommateProfileForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">
             {form.status === 'HAS_ROOM' ? 'Ảnh phòng hiện tại' : 'Ảnh (không bắt buộc)'}
           </label>
           <ImageUploader
@@ -324,31 +324,31 @@ export default function RoommateProfileForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Giới thiệu thêm</label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">Giới thiệu thêm</label>
           <textarea
             name="bio"
             value={form.bio}
             onChange={handleChange}
             rows={3}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">SĐT liên hệ</label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">SĐT liên hệ</label>
           <input
             name="contactPhone"
             value={form.contactPhone}
             onChange={handleChange}
             required
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-rose-600 py-2 text-white hover:bg-rose-700 disabled:opacity-50"
+          className="w-full rounded-full bg-rose-600 py-2.5 text-sm font-semibold text-white transition-all hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50"
         >
           {loading ? 'Đang lưu...' : 'Lưu hồ sơ'}
         </button>

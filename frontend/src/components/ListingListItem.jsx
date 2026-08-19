@@ -15,11 +15,11 @@ export default function ListingListItem({ listing, featured = false }) {
   return (
     <Link
       to={`/listings/${listing.id}`}
-      className="group flex gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg"
+      className="group flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg"
     >
-      <div className="relative h-32 w-44 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+      <div className="relative h-32 w-44 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
         {featured && (
-          <span className="absolute left-2 top-2 rounded-md bg-gray-900/80 px-2 py-1 text-xs font-medium text-white">
+          <span className="absolute left-2 top-2 rounded-full bg-gray-900/80 px-2.5 py-1 text-xs font-medium text-white">
             Tin nổi bật
           </span>
         )}
@@ -72,7 +72,7 @@ export default function ListingListItem({ listing, featured = false }) {
           <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>
           <p className="text-xs text-gray-400">{listing.area} m²</p>
         </div>
-        <span className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white transition-colors group-hover:bg-rose-700">
+        <span className="rounded-full bg-rose-600 px-3.5 py-1.5 text-sm font-medium text-white transition-colors group-hover:bg-rose-700">
           Xem chi tiết
         </span>
       </div>
