@@ -15,6 +15,7 @@ import MyListings from './pages/MyListings';
 import RoommateBrowse from './pages/RoommateBrowse';
 import RoommateDetail from './pages/RoommateDetail';
 import RoommateProfileForm from './pages/RoommateProfileForm';
+import Favorites from './pages/Favorites';
 import Dashboard from './pages/admin/Dashboard';
 import AdminPending from './pages/admin/AdminPending';
 import AdminUsers from './pages/admin/AdminUsers';
@@ -67,6 +68,15 @@ function AppShell() {
           element={
             <ProtectedRoute>
               <RoommateProfileForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/favorites"
+          element={
+            <ProtectedRoute>
+              <Favorites />
             </ProtectedRoute>
           }
         />

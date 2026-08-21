@@ -20,6 +20,7 @@ import { browseProfiles } from '../services/roommateService';
 import ListingCard from '../components/ListingCard';
 import RoommateCard from '../components/RoommateCard';
 import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../hooks/useFavorites';
 
 const FEATURES = [
   {
@@ -51,6 +52,8 @@ const STEPS = [
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const listingFavorites = useFavorites('listing');
+  const roommateFavorites = useFavorites('roommate');
   const [mode, setMode] = useState('room');
   const [filters, setFilters] = useState({ city: '', district: '', minPrice: '', maxPrice: '' });
   const [latest, setLatest] = useState([]);
@@ -410,7 +413,11 @@ export default function Home() {
             >
               {latest.map((listing) => (
                 <div key={listing.id} className="w-64 flex-shrink-0 snap-start sm:w-72">
-                  <ListingCard listing={listing} />
+                  <ListingCard
+                    listing={listing}
+                    favorited={listingFavorites.isFavorited(listing.id)}
+                    onToggleFavorite={() => listingFavorites.toggle(listing.id)}
+                  />
                 </div>
               ))}
             </div>
@@ -511,7 +518,11 @@ export default function Home() {
             >
               {roommateProfiles.map((profile) => (
                 <div key={profile.id} className="w-64 flex-shrink-0 snap-start sm:w-72">
-                  <RoommateCard profile={profile} />
+                  <RoommateCard
+                    profile={profile}
+                    favorited={roommateFavorites.isFavorited(profile.id)}
+                    onToggleFavorite={() => roommateFavorites.toggle(profile.id)}
+                  />
                 </div>
               ))}
             </div>

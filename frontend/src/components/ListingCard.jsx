@@ -16,7 +16,7 @@ function isNew(createdAt) {
   return days <= 7;
 }
 
-export default function ListingCard({ listing }) {
+export default function ListingCard({ listing, favorited, onToggleFavorite }) {
   const { rating, count } = getMockRating(listing.id);
   const [activeImage, setActiveImage] = useState(0);
   const images = listing.imageUrls || [];
@@ -44,7 +44,11 @@ export default function ListingCard({ listing }) {
             Mới
           </span>
         )}
-        <FavoriteButton className="absolute right-2 top-2 z-10" />
+        <FavoriteButton
+          className="absolute right-2 top-2 z-10"
+          favorited={favorited}
+          onToggle={onToggleFavorite}
+        />
         {images.length > 0 ? (
           <img
             src={images[activeImage]}

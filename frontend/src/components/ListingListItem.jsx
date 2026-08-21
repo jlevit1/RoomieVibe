@@ -9,7 +9,7 @@ function formatPrice(price) {
   return new Intl.NumberFormat('vi-VN').format(price) + ' đ/tháng';
 }
 
-export default function ListingListItem({ listing, featured = false }) {
+export default function ListingListItem({ listing, featured = false, favorited, onToggleFavorite }) {
   const { rating, count } = getMockRating(listing.id);
 
   return (
@@ -66,7 +66,7 @@ export default function ListingListItem({ listing, featured = false }) {
       </div>
 
       <div className="flex flex-shrink-0 flex-col items-end justify-between text-right">
-        <FavoriteButton />
+        <FavoriteButton favorited={favorited} onToggle={onToggleFavorite} />
         <div>
           <p className="text-xs text-gray-400">Giá thuê</p>
           <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>

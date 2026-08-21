@@ -19,7 +19,7 @@ function isNew(createdAt) {
   return days <= 7;
 }
 
-export default function RoommateCard({ profile }) {
+export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
   const p = profile;
   const isOwnProfile = p.own;
   const linkTo = isOwnProfile ? '/roommates/profile' : `/roommates/${p.id}`;
@@ -57,7 +57,13 @@ export default function RoommateCard({ profile }) {
             </span>
           )
         )}
-        {!isOwnProfile && <FavoriteButton className="absolute right-2 top-2 z-10" />}
+        {!isOwnProfile && (
+          <FavoriteButton
+            className="absolute right-2 top-2 z-10"
+            favorited={favorited}
+            onToggle={onToggleFavorite}
+          />
+        )}
         {images.length > 0 ? (
           <img
             src={images[activeImage]}

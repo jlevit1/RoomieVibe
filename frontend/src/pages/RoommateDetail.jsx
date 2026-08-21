@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Phone, Cigarette, PawPrint, UtensilsCrossed } from 'lucide-react';
 import { getProfileById } from '../services/roommateService';
 import FavoriteButton from '../components/FavoriteButton';
+import { useFavorites } from '../hooks/useFavorites';
 import {
   STATUS_LABELS,
   GENDER_LABELS,
@@ -52,6 +53,7 @@ function buildHabits(profile) {
 
 export default function RoommateDetail() {
   const { id } = useParams();
+  const roommateFavorites = useFavorites('roommate');
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
   const [activeImage, setActiveImage] = useState(0);
@@ -91,7 +93,13 @@ export default function RoommateDetail() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="relative mb-3 h-80 overflow-hidden rounded-2xl bg-gray-100">
-            <FavoriteButton className="absolute right-3 top-3 z-10" />
+            {!profile.own && (
+              <FavoriteButton
+                className="absolute right-3 top-3 z-10"
+                favorited={roommateFavorites.isFavorited(profile.id)}
+                onToggle={() => roommateFavorites.toggle(profile.id)}
+              />
+            )}
             {images.length > 0 ? (
               <img
                 src={images[activeImage]}

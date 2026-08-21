@@ -4,6 +4,7 @@ import { Users, X } from 'lucide-react';
 import { browseProfiles } from '../services/roommateService';
 import RoommateCard from '../components/RoommateCard';
 import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../hooks/useFavorites';
 import { STATUS_LABELS, GENDER_LABELS } from '../constants/roommate';
 
 const SORT_OPTIONS = [
@@ -17,6 +18,7 @@ const EMPTY_FILTERS = { city: '', status: '', gender: '', minBudget: '', maxBudg
 
 export default function RoommateBrowse() {
   const { user } = useAuth();
+  const roommateFavorites = useFavorites('roommate');
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -256,7 +258,12 @@ export default function RoommateBrowse() {
           {!loading && visibleProfiles.length > 0 && (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {visibleProfiles.map((p) => (
-                <RoommateCard key={p.id} profile={p} />
+                <RoommateCard
+                  key={p.id}
+                  profile={p}
+                  favorited={roommateFavorites.isFavorited(p.id)}
+                  onToggleFavorite={() => roommateFavorites.toggle(p.id)}
+                />
               ))}
             </div>
           )}

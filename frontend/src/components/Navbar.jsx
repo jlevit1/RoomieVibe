@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ListChecks, PlusCircle, ShieldCheck, LogOut, ChevronDown, Menu, X } from 'lucide-react';
+import { ListChecks, PlusCircle, ShieldCheck, LogOut, ChevronDown, Menu, X, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ModeSwitcher from './ModeSwitcher';
 
@@ -33,6 +33,16 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden items-center gap-5 text-sm md:flex">
           <ModeSwitcher />
+
+          {user && (
+            <Link
+              to="/favorites"
+              title="Đã lưu"
+              className="flex items-center gap-1.5 text-gray-700 transition-colors hover:text-rose-600"
+            >
+              <Heart size={16} /> Đã lưu
+            </Link>
+          )}
 
           {user?.role === 'LANDLORD' && (
             <>
@@ -120,6 +130,16 @@ export default function Navbar() {
           <div className="pb-2">
             <ModeSwitcher />
           </div>
+
+          {user && (
+            <Link
+              to="/favorites"
+              onClick={closeMobile}
+              className="flex items-center gap-2 rounded-xl px-2 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <Heart size={16} /> Đã lưu
+            </Link>
+          )}
 
           {user?.role === 'LANDLORD' && (
             <>

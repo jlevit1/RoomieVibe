@@ -7,6 +7,7 @@ import { AMENITY_ICONS } from '../constants/amenityIcons';
 import { getMockRating } from '../utils/mockData';
 import StarRating from '../components/StarRating';
 import FavoriteButton from '../components/FavoriteButton';
+import { useFavorites } from '../hooks/useFavorites';
 
 function formatPrice(price) {
   return new Intl.NumberFormat('vi-VN').format(price) + ' đ/tháng';
@@ -14,6 +15,7 @@ function formatPrice(price) {
 
 export default function ListingDetail() {
   const { id } = useParams();
+  const listingFavorites = useFavorites('listing');
   const [listing, setListing] = useState(null);
   const [error, setError] = useState('');
   const [activeImage, setActiveImage] = useState(0);
@@ -59,7 +61,11 @@ export default function ListingDetail() {
         <div className="lg:col-span-2">
           {/* Gallery */}
           <div className="relative mb-3 h-80 overflow-hidden rounded-2xl bg-gray-100">
-            <FavoriteButton className="absolute right-3 top-3 z-10" />
+            <FavoriteButton
+              className="absolute right-3 top-3 z-10"
+              favorited={listingFavorites.isFavorited(listing.id)}
+              onToggle={() => listingFavorites.toggle(listing.id)}
+            />
             {images.length > 0 ? (
               <img
                 src={images[activeImage]}

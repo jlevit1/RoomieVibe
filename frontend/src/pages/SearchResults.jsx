@@ -5,6 +5,7 @@ import { searchListings } from '../services/listingService';
 import ListingCard from '../components/ListingCard';
 import ListingListItem from '../components/ListingListItem';
 import Pagination from '../components/Pagination';
+import { useFavorites } from '../hooks/useFavorites';
 
 const SORT_OPTIONS = [
   { value: 'createdAt,desc', label: 'Mới nhất' },
@@ -20,6 +21,7 @@ const TRUST_ITEMS = [
 ];
 
 export default function SearchResults() {
+  const listingFavorites = useFavorites('listing');
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState('list');
   const [page, setPage] = useState(0);
@@ -274,13 +276,20 @@ export default function SearchResults() {
                       key={listing.id}
                       listing={listing}
                       featured={page === 0 && index === 0}
+                      favorited={listingFavorites.isFavorited(listing.id)}
+                      onToggleFavorite={() => listingFavorites.toggle(listing.id)}
                     />
                   ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {data.content.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} />
+                    <ListingCard
+                      key={listing.id}
+                      listing={listing}
+                      favorited={listingFavorites.isFavorited(listing.id)}
+                      onToggleFavorite={() => listingFavorites.toggle(listing.id)}
+                    />
                   ))}
                 </div>
               )}
