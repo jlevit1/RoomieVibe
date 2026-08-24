@@ -1,10 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, ListChecks, Users } from 'lucide-react';
+import { LayoutDashboard, ListChecks, Users, Landmark } from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Dashboard', Icon: LayoutDashboard, end: true },
   { to: '/admin/pending', label: 'Duyệt tin', Icon: ListChecks },
   { to: '/admin/users', label: 'Người dùng', Icon: Users },
+  { to: '/admin/disputes', label: 'Tranh chấp cọc', Icon: Landmark },
 ];
 
 export default function AdminLayout() {

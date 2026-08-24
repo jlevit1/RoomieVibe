@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Phone, Cigarette, PawPrint, UtensilsCrossed } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Phone, Cigarette, PawPrint, UtensilsCrossed, MessageCircle } from 'lucide-react';
 import { getProfileById } from '../services/roommateService';
+import { getOrCreateRoommateConversation } from '../services/chatService';
 import FavoriteButton from '../components/FavoriteButton';
 import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../context/AuthContext';
 import {
   STATUS_LABELS,
   GENDER_LABELS,
@@ -53,16 +55,33 @@ function buildHabits(profile) {
 
 export default function RoommateDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const roommateFavorites = useFavorites('roommate');
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
   const [activeImage, setActiveImage] = useState(0);
+  const [messaging, setMessaging] = useState(false);
 
   useEffect(() => {
     getProfileById(id)
       .then(setProfile)
       .catch((err) => setError(err.response?.data?.message || 'Không tìm thấy hồ sơ'));
   }, [id]);
+
+  async function handleMessage() {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setMessaging(true);
+    try {
+      const conversation = await getOrCreateRoommateConversation(profile.id);
+      navigate(`/messages/${conversation.id}`);
+    } finally {
+      setMessaging(false);
+    }
+  }
 
   if (error) {
     return (
@@ -80,6 +99,9 @@ export default function RoommateDetail() {
   }
 
   const images = profile.imageUrls?.length > 0 ? profile.imageUrls : [];
+  const compatibilityCta = user
+    ? { to: '/roommates/profile', label: 'Tạo hồ sơ để xem % phù hợp' }
+    : { to: '/login', label: 'Đăng nhập để xem % phù hợp' };
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-6">
@@ -142,10 +164,10 @@ export default function RoommateDetail() {
               ) : (
                 !profile.own && (
                   <Link
-                    to="/login"
+                    to={compatibilityCta.to}
                     className="flex-shrink-0 whitespace-nowrap rounded-full border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
                   >
-                    Đăng nhập để xem % phù hợp
+                    {compatibilityCta.label}
                   </Link>
                 )
               )}
@@ -226,6 +248,16 @@ export default function RoommateDetail() {
             >
               Gọi ngay
             </a>
+            {!profile.own && (
+              <button
+                type="button"
+                onClick={handleMessage}
+                disabled={messaging}
+                className="flex w-full items-center justify-center gap-1.5 rounded-full border border-rose-600 py-2.5 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 disabled:opacity-60"
+              >
+                <MessageCircle size={16} /> Nhắn tin
+              </button>
+            )}
           </div>
         </div>
       </div>

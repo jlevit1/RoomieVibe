@@ -41,7 +41,7 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
   return (
     <Link
       to={linkTo}
-      className={`group block overflow-hidden rounded-2xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
+      className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
         isOwnProfile ? 'border-rose-300 ring-1 ring-rose-100' : 'border-gray-200 hover:border-gray-300'
       }`}
     >
@@ -108,7 +108,7 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
         )}
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <div className="mb-1 flex items-start justify-between gap-2">
           <h3 className="font-semibold text-gray-900 group-hover:text-rose-600">{p.fullName}</h3>
           {!isOwnProfile && p.compatibilityScore != null && (
@@ -130,7 +130,7 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
             {OCCUPATION_LABELS[p.occupation]}
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5 text-sm">
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5 text-sm">
           <span className="min-w-0 truncate text-gray-500">
             {(p.districts || []).join(', ') || p.city}
           </span>

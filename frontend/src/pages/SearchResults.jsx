@@ -5,6 +5,7 @@ import { searchListings } from '../services/listingService';
 import ListingCard from '../components/ListingCard';
 import ListingListItem from '../components/ListingListItem';
 import Pagination from '../components/Pagination';
+import CurrencyInput from '../components/CurrencyInput';
 import { useFavorites } from '../hooks/useFavorites';
 
 const SORT_OPTIONS = [
@@ -161,17 +162,15 @@ export default function SearchResults() {
                 Khoảng giá
               </label>
               <div className="flex items-center gap-2">
-                <input
+                <CurrencyInput
                   id="filter-min-price"
-                  type="number"
                   placeholder="Từ"
                   value={draft.minPrice}
                   onChange={(e) => setDraft({ ...draft, minPrice: e.target.value })}
                   className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                 />
                 <span className="text-gray-400">-</span>
-                <input
-                  type="number"
+                <CurrencyInput
                   placeholder="Đến"
                   value={draft.maxPrice}
                   onChange={(e) => setDraft({ ...draft, maxPrice: e.target.value })}

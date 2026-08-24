@@ -6,5 +6,8 @@ cloudinary.cloud-name=your-cloudinary-cloud-name
 cloudinary.api-key=your-cloudinary-api-key
 cloudinary.api-secret=your-cloudinary-api-secret
 
+vnp.tmnCode=your-vnpay-sandbox-tmn-code
+vnp.hashSecret=your-vnpay-sandbox-hash-secret
+
 # Tat DataSeeder (mac dinh bat) neu khong muon tu dong them du lieu test khi chay backend
 app.seed.enabled=true

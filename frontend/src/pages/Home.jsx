@@ -7,8 +7,9 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   BadgeCheck,
-  Eye,
-  Phone,
+  MessageCircle,
+  Landmark,
+  CheckCircle2,
   KeyRound,
   MapPin,
   Wallet,
@@ -19,14 +20,15 @@ import { searchListings } from '../services/listingService';
 import { browseProfiles } from '../services/roommateService';
 import ListingCard from '../components/ListingCard';
 import RoommateCard from '../components/RoommateCard';
+import CurrencyInput from '../components/CurrencyInput';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
 
 const FEATURES = [
   {
-    title: 'Bảo mật địa chỉ',
-    desc: 'Tin đăng chỉ hiển thị khu vực, không lộ địa chỉ chi tiết cho tới khi hai bên chủ động liên hệ.',
-    Icon: ShieldCheck,
+    title: 'Nhắn tin trực tiếp trong app',
+    desc: 'Trò chuyện thời gian thực với chủ nhà hoặc bạn ở ghép ngay trong RoomieVibe, không cần lộ số điện thoại trước.',
+    Icon: MessageCircle,
   },
   {
     title: 'Tìm kiếm thông minh',
@@ -35,7 +37,7 @@ const FEATURES = [
   },
   {
     title: 'Minh bạch, đã kiểm duyệt',
-    desc: 'Mọi tin đăng đều qua admin duyệt trước khi hiển thị công khai.',
+    desc: 'Mọi tin đăng đều qua admin duyệt, địa chỉ chi tiết chỉ hiển thị khi hai bên chủ động liên hệ.',
     Icon: BadgeCheck,
   },
 ];
@@ -44,8 +46,8 @@ const PREVIEW_CITIES = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Cần
 
 const STEPS = [
   { title: 'Tìm kiếm', desc: 'Lọc theo khu vực, giá, diện tích để tìm phòng ưng ý.', Icon: Search },
-  { title: 'Xem chi tiết', desc: 'Xem ảnh, mô tả, tiện ích và vị trí của tin đăng.', Icon: Eye },
-  { title: 'Liên hệ chủ nhà', desc: 'Gọi trực tiếp cho chủ nhà để hẹn xem phòng.', Icon: Phone },
+  { title: 'Nhắn tin & đặt cọc', desc: 'Trò chuyện với chủ nhà, đặt cọc giữ lịch xem phòng ngay trong app.', Icon: MessageCircle },
+  { title: 'Xem phòng, xác nhận', desc: 'Xem phòng trực tiếp rồi xác nhận trong app để giải ngân cọc.', Icon: CheckCircle2 },
   { title: 'Chuyển vào ở', desc: 'Thỏa thuận xong là có thể dọn vào ngay.', Icon: KeyRound },
 ];
 
@@ -187,18 +189,16 @@ export default function Home() {
               </div>
               <div className="flex flex-1 items-center gap-2 px-5 py-3.5">
                 <Wallet size={16} className="flex-shrink-0 text-gray-400" />
-                <input
+                <CurrencyInput
                   name="minPrice"
-                  type="number"
                   placeholder="Giá từ"
                   value={filters.minPrice}
                   onChange={handleFilterChange}
                   className="w-full min-w-0 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
                 />
                 <span className="text-gray-300">-</span>
-                <input
+                <CurrencyInput
                   name="maxPrice"
-                  type="number"
                   placeholder="đến"
                   value={filters.maxPrice}
                   onChange={handleFilterChange}
@@ -281,19 +281,78 @@ export default function Home() {
       {/* Feature highlights */}
       <section className="bg-white px-6 py-14 sm:py-16">
         <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {FEATURES.map(({ title, desc, Icon }) => (
-              <div
-                key={title}
-                className="rounded-2xl border border-gray-200 p-6 transition-colors hover:border-rose-200"
-              >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-rose-50 text-rose-600">
-                  <Icon size={20} />
+          <div className="mb-8 max-w-xl">
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              Vì sao chọn RoomieVibe
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Không chỉ là tin đăng, cả hành trình tìm phòng của bạn đều an tâm hơn.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+            {/* Featured card: escrow deposit protection */}
+            <div className="overflow-hidden rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-white lg:col-span-3">
+              <div className="grid gap-6 p-6 sm:grid-cols-2 sm:items-center sm:p-8">
+                <div>
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-rose-600 text-white">
+                    <Landmark size={20} />
+                  </div>
+                  <h3 className="mb-1.5 text-lg font-semibold text-gray-900">
+                    Đặt cọc an toàn qua trung gian
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    RoomieVibe giữ tiền cọc cho tới khi bạn xác nhận đã xem phòng, tiền mới được
+                    chuyển cho chủ nhà. Không còn lo mất cọc oan vì chủ nhà không xuất hiện.
+                  </p>
                 </div>
-                <h3 className="mb-1 font-semibold text-gray-900">{title}</h3>
-                <p className="text-sm text-gray-500">{desc}</p>
+
+                {/* Mini mockup of the real in-app deposit card */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
+                  <div className="mb-2 flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
+                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-rose-600 text-xs font-semibold text-white">
+                      T
+                    </span>
+                    <p className="truncate text-xs text-gray-600">
+                      Chủ nhà: <span className="font-medium text-gray-900">Cho e cọc xem phòng nhé</span>
+                    </p>
+                  </div>
+                  <div className="overflow-hidden rounded-xl border border-blue-200 bg-blue-50/60">
+                    <div className="flex items-center gap-2 border-b border-blue-100 px-3 py-2">
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-white text-rose-600 shadow-sm">
+                        <Landmark size={13} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-gray-900">Yêu cầu đặt cọc</p>
+                        <p className="text-sm font-bold text-gray-900">500.000 đ</p>
+                      </div>
+                      <span className="flex flex-shrink-0 items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                        <ShieldCheck size={10} /> Đang giữ an toàn
+                      </span>
+                    </div>
+                    <p className="px-3 py-2 text-xs text-gray-600">
+                      Chuyển cho chủ nhà sau khi bạn xác nhận đã xem phòng.
+                    </p>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Smaller feature cards */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
+              {FEATURES.map(({ title, desc, Icon }) => (
+                <div
+                  key={title}
+                  className="rounded-2xl border border-gray-200 p-6 transition-colors hover:border-rose-200"
+                >
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                    <Icon size={20} />
+                  </div>
+                  <h3 className="mb-1 font-semibold text-gray-900">{title}</h3>
+                  <p className="text-sm text-gray-500">{desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

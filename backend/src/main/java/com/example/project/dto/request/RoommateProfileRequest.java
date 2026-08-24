@@ -12,6 +12,7 @@ import com.example.project.entity.SleepSchedule;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -58,6 +59,7 @@ public class RoommateProfileRequest {
 
     private Boolean cooksAtHome;
 
+    @Size(max = 6, message = "Toi da 6 anh")
     private Set<String> imageUrls;
 
     private String bio;

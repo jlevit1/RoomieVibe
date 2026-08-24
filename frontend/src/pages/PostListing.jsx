@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { createListing, getMyListings, updateListing } from '../services/listingService';
 import { AMENITY_LABELS, AMENITY_OPTIONS } from '../constants/amenities';
 import ImageUploader from '../components/ImageUploader';
+import CurrencyInput from '../components/CurrencyInput';
 
 const EMPTY_FORM = {
   title: '',
@@ -122,9 +123,8 @@ export default function PostListing() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="price" className={labelClass}>Giá (đ/tháng)</label>
-              <input
+              <CurrencyInput
                 id="price"
-                type="number"
                 name="price"
                 value={form.price}
                 onChange={handleChange}
@@ -216,6 +216,7 @@ export default function PostListing() {
             <ImageUploader
               images={form.imageUrls}
               onChange={(imageUrls) => setForm({ ...form, imageUrls })}
+              maxImages={6}
             />
           </div>
 

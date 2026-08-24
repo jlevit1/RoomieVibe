@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Users, X } from 'lucide-react';
 import { browseProfiles } from '../services/roommateService';
 import RoommateCard from '../components/RoommateCard';
+import CurrencyInput from '../components/CurrencyInput';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { STATUS_LABELS, GENDER_LABELS } from '../constants/roommate';
@@ -183,17 +184,15 @@ export default function RoommateBrowse() {
                 Ngân sách
               </label>
               <div className="flex items-center gap-2">
-                <input
+                <CurrencyInput
                   id="filter-min-budget"
-                  type="number"
                   placeholder="Từ"
                   value={filters.minBudget}
                   onChange={(e) => updateFilter('minBudget', e.target.value)}
                   className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                 />
                 <span className="text-gray-400">-</span>
-                <input
-                  type="number"
+                <CurrencyInput
                   placeholder="Đến"
                   value={filters.maxBudget}
                   onChange={(e) => updateFilter('maxBudget', e.target.value)}

@@ -36,7 +36,7 @@ export default function ListingCard({ listing, favorited, onToggleFavorite }) {
   return (
     <Link
       to={`/listings/${listing.id}`}
-      className="group block overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg"
     >
       <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gray-100 text-gray-400">
         {isNew(listing.createdAt) && (
@@ -93,7 +93,7 @@ export default function ListingCard({ listing, favorited, onToggleFavorite }) {
         )}
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <div className="mb-2 flex items-start justify-between gap-2">
           <h3 className="line-clamp-2 font-semibold text-gray-900 group-hover:text-rose-600">
             {listing.title}
@@ -114,7 +114,7 @@ export default function ListingCard({ listing, favorited, onToggleFavorite }) {
           ))}
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5 text-sm">
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5 text-sm">
           <span className="min-w-0 truncate text-gray-500">
             {listing.district}, {listing.city}
           </span>

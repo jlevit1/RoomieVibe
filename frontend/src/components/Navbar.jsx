@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ListChecks, PlusCircle, ShieldCheck, LogOut, ChevronDown, Menu, X, Heart } from 'lucide-react';
+import {
+  ListChecks,
+  PlusCircle,
+  ShieldCheck,
+  LogOut,
+  ChevronDown,
+  Menu,
+  X,
+  Heart,
+  Wallet,
+  UserPen,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ModeSwitcher from './ModeSwitcher';
 
@@ -41,6 +52,16 @@ export default function Navbar() {
               className="flex items-center gap-1.5 text-gray-700 transition-colors hover:text-rose-600"
             >
               <Heart size={16} /> Đã lưu
+            </Link>
+          )}
+
+          {user && (
+            <Link
+              to="/wallet"
+              title="Ví"
+              className="flex items-center gap-1.5 text-gray-700 transition-colors hover:text-rose-600"
+            >
+              <Wallet size={16} /> Ví
             </Link>
           )}
 
@@ -88,6 +109,13 @@ export default function Navbar() {
                   <p className="truncate px-3 py-2 text-sm font-medium text-gray-900">
                     {user.fullName}
                   </p>
+                  <Link
+                    to="/roommates/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    <UserPen size={14} /> Chỉnh sửa hồ sơ
+                  </Link>
                   <button
                     type="button"
                     onClick={handleLogout}
@@ -141,6 +169,16 @@ export default function Navbar() {
             </Link>
           )}
 
+          {user && (
+            <Link
+              to="/wallet"
+              onClick={closeMobile}
+              className="flex items-center gap-2 rounded-xl px-2 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <Wallet size={16} /> Ví
+            </Link>
+          )}
+
           {user?.role === 'LANDLORD' && (
             <>
               <Link
@@ -178,6 +216,13 @@ export default function Navbar() {
                 </span>
                 <span className="truncate text-sm font-medium text-gray-900">{user.fullName}</span>
               </div>
+              <Link
+                to="/roommates/profile"
+                onClick={closeMobile}
+                className="flex items-center gap-2 rounded-xl px-2 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <UserPen size={16} /> Chỉnh sửa hồ sơ
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}

@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingMessageButton from './components/FloatingMessageButton';
 import AdminLayout from './components/AdminLayout';
 import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
@@ -16,9 +17,14 @@ import RoommateBrowse from './pages/RoommateBrowse';
 import RoommateDetail from './pages/RoommateDetail';
 import RoommateProfileForm from './pages/RoommateProfileForm';
 import Favorites from './pages/Favorites';
+import Wallet from './pages/Wallet';
+import TopUpResult from './pages/TopUpResult';
+import Messages from './pages/Messages';
+import ChatThread from './pages/ChatThread';
 import Dashboard from './pages/admin/Dashboard';
 import AdminPending from './pages/admin/AdminPending';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminDisputes from './pages/admin/AdminDisputes';
 
 function AppShell() {
   const location = useLocation();
@@ -27,8 +33,9 @@ function AppShell() {
   const hideFooter = isAdmin || isAuthPage;
 
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <Navbar />
+      <main className="flex-1">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchResults />} />
@@ -82,6 +89,40 @@ function AppShell() {
         />
 
         <Route
+          path="/wallet"
+          element={
+            <ProtectedRoute>
+              <Wallet />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wallet/topup-result"
+          element={
+            <ProtectedRoute>
+              <TopUpResult />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <Messages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/messages/:id"
+          element={
+            <ProtectedRoute>
+              <ChatThread />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin"
           element={
             <ProtectedRoute roles={['ADMIN']}>
@@ -92,10 +133,13 @@ function AppShell() {
           <Route index element={<Dashboard />} />
           <Route path="pending" element={<AdminPending />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="disputes" element={<AdminDisputes />} />
         </Route>
       </Routes>
+      </main>
       {!hideFooter && <Footer />}
-    </>
+      {!isAdmin && <FloatingMessageButton />}
+    </div>
   );
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyProfile, saveMyProfile } from '../services/roommateService';
 import ImageUploader from '../components/ImageUploader';
+import CurrencyInput from '../components/CurrencyInput';
 import {
   STATUS_LABELS,
   GENDER_LABELS,
@@ -142,8 +143,7 @@ export default function RoommateProfileForm() {
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Ngân sách (đ/người/tháng)
             </label>
-            <input
-              type="number"
+            <CurrencyInput
               name="budget"
               value={form.budget}
               onChange={handleChange}
@@ -315,6 +315,7 @@ export default function RoommateProfileForm() {
           <ImageUploader
             images={form.imageUrls}
             onChange={(imageUrls) => setForm({ ...form, imageUrls })}
+            maxImages={6}
           />
           {form.status === 'HAS_ROOM' && (
             <p className="mt-1 text-xs text-gray-400">

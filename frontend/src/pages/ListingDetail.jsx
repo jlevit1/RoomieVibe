@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Phone, Eye, Hash } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Phone, Eye, Hash, MessageCircle } from 'lucide-react';
 import { getListing } from '../services/listingService';
+import { getOrCreateConversation } from '../services/chatService';
 import { AMENITY_LABELS } from '../constants/amenities';
 import { AMENITY_ICONS } from '../constants/amenityIcons';
-import { getMockRating } from '../utils/mockData';
-import StarRating from '../components/StarRating';
 import FavoriteButton from '../components/FavoriteButton';
+import ReviewSection from '../components/ReviewSection';
 import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../context/AuthContext';
 
 function formatPrice(price) {
   return new Intl.NumberFormat('vi-VN').format(price) + ' đ/tháng';
@@ -15,10 +16,13 @@ function formatPrice(price) {
 
 export default function ListingDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const listingFavorites = useFavorites('listing');
   const [listing, setListing] = useState(null);
   const [error, setError] = useState('');
   const [activeImage, setActiveImage] = useState(0);
+  const [messaging, setMessaging] = useState(false);
 
   useEffect(() => {
     getListing(id)
@@ -41,8 +45,22 @@ export default function ListingDetail() {
     return <div className="mx-auto max-w-3xl px-6 py-10 text-gray-500">Đang tải...</div>;
   }
 
-  const { rating, count } = getMockRating(listing.id);
   const images = listing.imageUrls?.length > 0 ? listing.imageUrls : [];
+  const isOwnListing = user?.userId === listing.landlordId;
+
+  async function handleMessage() {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setMessaging(true);
+    try {
+      const conversation = await getOrCreateConversation(listing.id);
+      navigate(`/messages/${conversation.id}`);
+    } finally {
+      setMessaging(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-6">
@@ -100,7 +118,6 @@ export default function ListingDetail() {
           <div className="mb-6">
             <div className="mb-1 flex items-start justify-between gap-3">
               <h1 className="text-2xl font-bold text-gray-900">{listing.title}</h1>
-              <StarRating rating={rating} count={count} />
             </div>
             <p className="mb-3 text-gray-500">{listing.address}, {listing.district}, {listing.city}</p>
             <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>
@@ -191,8 +208,22 @@ export default function ListingDetail() {
             >
               Gọi ngay
             </a>
+            {!isOwnListing && (
+              <button
+                type="button"
+                onClick={handleMessage}
+                disabled={messaging}
+                className="flex w-full items-center justify-center gap-1.5 rounded-full border border-rose-600 py-2.5 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 disabled:opacity-60"
+              >
+                <MessageCircle size={16} /> Nhắn tin
+              </button>
+            )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-8 border-t border-gray-200 pt-8">
+        <ReviewSection targetId={listing.id} hidden={isOwnListing} />
       </div>
     </div>
   );
