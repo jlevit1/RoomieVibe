@@ -34,6 +34,11 @@ export default function SearchResults() {
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
   const sort = searchParams.get('sort') || 'createdAt,desc';
+  // carried over silently from the homepage's advanced filter modal; no UI here, but still applied
+  const ward = searchParams.get('ward') || '';
+  const minArea = searchParams.get('minArea') || '';
+  const maxArea = searchParams.get('maxArea') || '';
+  const amenities = (searchParams.get('amenities') || '').split(',').filter(Boolean);
 
   const [draft, setDraft] = useState({ city, district, minPrice, maxPrice });
 
@@ -45,7 +50,7 @@ export default function SearchResults() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [city, district, minPrice, maxPrice, sort, page]);
+  }, [city, district, minPrice, maxPrice, ward, minArea, maxArea, searchParams.get('amenities'), sort, page]);
 
   async function load() {
     setLoading(true);
@@ -56,6 +61,10 @@ export default function SearchResults() {
       if (district) params.district = district;
       if (minPrice) params.minPrice = minPrice;
       if (maxPrice) params.maxPrice = maxPrice;
+      if (ward) params.ward = ward;
+      if (minArea) params.minArea = minArea;
+      if (maxArea) params.maxArea = maxArea;
+      if (amenities.length > 0) params.amenities = amenities;
       const result = await searchListings(params);
       setData(result);
     } finally {

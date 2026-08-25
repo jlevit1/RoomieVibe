@@ -21,6 +21,9 @@ import { browseProfiles } from '../services/roommateService';
 import ListingCard from '../components/ListingCard';
 import RoommateCard from '../components/RoommateCard';
 import CurrencyInput from '../components/CurrencyInput';
+import SearchableSelect from '../components/SearchableSelect';
+import FilterModal from '../components/FilterModal';
+import { PROVINCE_NAMES, getDistrictNamesForProvince } from '../data/vnLocations';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
 
@@ -57,7 +60,17 @@ export default function Home() {
   const listingFavorites = useFavorites('listing');
   const roommateFavorites = useFavorites('roommate');
   const [mode, setMode] = useState('room');
-  const [filters, setFilters] = useState({ city: '', district: '', minPrice: '', maxPrice: '' });
+  const [filters, setFilters] = useState({
+    city: '',
+    district: '',
+    ward: '',
+    minPrice: '',
+    maxPrice: '',
+    minArea: '',
+    maxArea: '',
+    amenities: [],
+  });
+  const [filterOpen, setFilterOpen] = useState(false);
   const [latest, setLatest] = useState([]);
   const [totalListings, setTotalListings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -110,13 +123,30 @@ export default function Home() {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   }
 
-  function handleSearch(e) {
-    e.preventDefault();
+  function handleCityFilterChange(e) {
+    setFilters({ ...filters, city: e.target.value, district: '' });
+  }
+
+  function navigateToSearch(values) {
     const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== '') params.set(key, value);
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === 'amenities') {
+        if (value?.length > 0) params.set('amenities', value.join(','));
+      } else if (value !== '') {
+        params.set(key, value);
+      }
     });
     navigate(`/search?${params.toString()}`);
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    navigateToSearch(filters);
+  }
+
+  function handleApplyAdvancedFilters(values) {
+    setFilters(values);
+    navigateToSearch(values);
   }
 
   return (
@@ -168,44 +198,47 @@ export default function Home() {
           {mode === 'room' ? (
             <form
               onSubmit={handleSearch}
-              className="motion-safe:animate-fade-up mx-auto mt-5 flex max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl sm:flex-row sm:items-stretch sm:rounded-full [animation-delay:140ms]"
+              className="motion-safe:animate-fade-up relative mx-auto mt-5 flex max-w-3xl flex-col rounded-2xl bg-white shadow-xl sm:flex-row sm:items-stretch sm:rounded-full [animation-delay:140ms]"
             >
               <div className="flex flex-1 items-center gap-2 border-b border-gray-100 px-5 py-3.5 sm:border-b-0 sm:border-r">
                 <MapPin size={16} className="flex-shrink-0 text-gray-400" />
-                <input
+                <SearchableSelect
                   name="city"
                   placeholder="Tỉnh/thành phố"
                   value={filters.city}
-                  onChange={handleFilterChange}
-                  className="w-full text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  onChange={handleCityFilterChange}
+                  options={PROVINCE_NAMES}
+                  className="w-full text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none"
                 />
               </div>
               <div className="flex flex-1 items-center gap-2 border-b border-gray-100 px-5 py-3.5 sm:border-b-0 sm:border-r">
                 <MapPinned size={16} className="flex-shrink-0 text-gray-400" />
-                <input
+                <SearchableSelect
                   name="district"
-                  placeholder="Quận/huyện"
+                  placeholder={filters.city ? 'Quận/huyện' : 'Chọn tỉnh/thành trước'}
                   value={filters.district}
                   onChange={handleFilterChange}
-                  className="w-full text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  options={getDistrictNamesForProvince(filters.city)}
+                  disabled={!filters.city}
+                  className="w-full text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed"
                 />
               </div>
-              <div className="flex flex-1 items-center gap-2 px-5 py-3.5">
+              <div className="flex flex-[1.6] items-center gap-1.5 px-4 py-3.5">
                 <Wallet size={16} className="flex-shrink-0 text-gray-400" />
                 <CurrencyInput
                   name="minPrice"
                   placeholder="Giá từ"
                   value={filters.minPrice}
                   onChange={handleFilterChange}
-                  className="w-full min-w-0 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  className="w-0 min-w-0 flex-1 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none"
                 />
-                <span className="text-gray-300">-</span>
+                <span className="flex-shrink-0 text-gray-300">-</span>
                 <CurrencyInput
                   name="maxPrice"
                   placeholder="đến"
                   value={filters.maxPrice}
                   onChange={handleFilterChange}
-                  className="w-full min-w-0 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  className="w-0 min-w-0 flex-1 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none"
                 />
               </div>
               <button
@@ -256,8 +289,22 @@ export default function Home() {
                 {cityName} <ChevronRight size={13} />
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="flex items-center gap-1 rounded-full border border-white/30 px-3 py-1 font-medium text-white transition-colors hover:bg-white/10"
+            >
+              <SlidersHorizontal size={13} /> Bộ lọc nâng cao
+            </button>
           </div>
         </div>
+
+        <FilterModal
+          isOpen={filterOpen}
+          onClose={() => setFilterOpen(false)}
+          initialFilters={filters}
+          onApply={handleApplyAdvancedFilters}
+        />
 
         {/* Stats strip */}
         <div className="relative border-t border-white/15 px-6 py-5">

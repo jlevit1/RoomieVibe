@@ -1,7 +1,9 @@
 import api from './api';
 
 export function searchListings(params) {
-  return api.get('/listings', { params }).then((res) => res.data);
+  return api
+    .get('/listings', { params, paramsSerializer: { indexes: null } })
+    .then((res) => res.data);
 }
 
 export function getListing(id) {

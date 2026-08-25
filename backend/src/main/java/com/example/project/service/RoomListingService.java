@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.project.dto.request.CreateListingRequest;
 import com.example.project.dto.request.RejectListingRequest;
 import com.example.project.dto.response.RoomListingResponse;
+import com.example.project.entity.Amenity;
 
 public interface RoomListingService {
 
@@ -20,8 +21,9 @@ public interface RoomListingService {
 
     RoomListingResponse getById(Long id);
 
-    Page<RoomListingResponse> search(String city, String district, BigDecimal minPrice,
-                                      BigDecimal maxPrice, Integer maxOccupants, Pageable pageable);
+    Page<RoomListingResponse> search(String city, String district, String ward, BigDecimal minPrice,
+                                      BigDecimal maxPrice, Double minArea, Double maxArea,
+                                      Integer maxOccupants, List<Amenity> amenities, Pageable pageable);
 
     List<RoomListingResponse> getMine(String landlordEmail);
 

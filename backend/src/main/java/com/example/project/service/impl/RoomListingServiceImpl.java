@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.project.dto.request.CreateListingRequest;
 import com.example.project.dto.request.RejectListingRequest;
 import com.example.project.dto.response.RoomListingResponse;
+import com.example.project.entity.Amenity;
 import com.example.project.entity.ListingStatus;
 import com.example.project.entity.RoomListing;
 import com.example.project.entity.User;
@@ -112,10 +113,14 @@ public class RoomListingServiceImpl implements RoomListingService {
     }
 
     @Override
-    public Page<RoomListingResponse> search(String city, String district, BigDecimal minPrice,
-                                             BigDecimal maxPrice, Integer maxOccupants, Pageable pageable) {
+    public Page<RoomListingResponse> search(String city, String district, String ward, BigDecimal minPrice,
+                                             BigDecimal maxPrice, Double minArea, Double maxArea,
+                                             Integer maxOccupants, List<Amenity> amenities, Pageable pageable) {
+        long amenityCount = amenities == null ? 0 : amenities.size();
+        List<Amenity> safeAmenities = amenityCount == 0 ? List.of(Amenity.values()[0]) : amenities;
         return roomListingRepository
-                .search(ListingStatus.HIEN_THI, city, district, minPrice, maxPrice, maxOccupants, pageable)
+                .search(ListingStatus.HIEN_THI, city, district, ward, minPrice, maxPrice, minArea, maxArea,
+                        maxOccupants, safeAmenities, amenityCount, pageable)
                 .map(this::toResponse);
     }
 

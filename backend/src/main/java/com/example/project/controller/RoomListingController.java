@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.project.dto.request.CreateListingRequest;
 import com.example.project.dto.request.RejectListingRequest;
 import com.example.project.dto.response.RoomListingResponse;
+import com.example.project.entity.Amenity;
 import com.example.project.service.RoomListingService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,9 +53,13 @@ public class RoomListingController {
     public ResponseEntity<Page<RoomListingResponse>> search(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String district,
+            @RequestParam(required = false) String ward,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Double minArea,
+            @RequestParam(required = false) Double maxArea,
             @RequestParam(required = false) Integer maxOccupants,
+            @RequestParam(required = false) List<Amenity> amenities,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -64,7 +69,8 @@ public class RoomListingController {
         Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, safeSortBy));
 
-        return ResponseEntity.ok(roomListingService.search(city, district, minPrice, maxPrice, maxOccupants, pageable));
+        return ResponseEntity.ok(roomListingService.search(
+                city, district, ward, minPrice, maxPrice, minArea, maxArea, maxOccupants, amenities, pageable));
     }
 
     @GetMapping("/{id}")
