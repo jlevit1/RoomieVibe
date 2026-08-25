@@ -97,7 +97,10 @@ export default function Home() {
   useEffect(() => {
     browseProfiles()
       .then((profiles) => {
-        setAllRoommateProfiles(profiles.filter((p) => !p.own));
+        const newestFirst = profiles
+          .filter((p) => !p.own)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setAllRoommateProfiles(newestFirst);
       })
       .catch(() => {})
       .finally(() => setLoadingRoommates(false));
@@ -281,7 +284,7 @@ export default function Home() {
       {/* Feature highlights */}
       <section className="bg-white px-6 py-14 sm:py-16">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8 max-w-xl">
+          <div className="mb-10 max-w-xl">
             <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
               Vì sao chọn RoomieVibe
             </h2>
@@ -290,10 +293,10 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+          <div className="flex flex-col gap-5">
             {/* Featured card: escrow deposit protection */}
-            <div className="overflow-hidden rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-white lg:col-span-3">
-              <div className="grid gap-6 p-6 sm:grid-cols-2 sm:items-center sm:p-8">
+            <div className="overflow-hidden rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-white">
+              <div className="grid gap-8 p-6 sm:grid-cols-2 sm:items-center sm:p-10">
                 <div>
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-rose-600 text-white">
                     <Landmark size={20} />
@@ -339,11 +342,11 @@ export default function Home() {
             </div>
 
             {/* Smaller feature cards */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               {FEATURES.map(({ title, desc, Icon }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-gray-200 p-6 transition-colors hover:border-rose-200"
+                  className="rounded-2xl border border-gray-200 p-6 transition-all hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-sm"
                 >
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-rose-50 text-rose-600">
                     <Icon size={20} />

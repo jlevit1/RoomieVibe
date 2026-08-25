@@ -61,6 +61,8 @@ public class RoomListing {
     @Column(nullable = false)
     private String district;
 
+    private String ward;
+
     @Column(nullable = false)
     private String address;
 

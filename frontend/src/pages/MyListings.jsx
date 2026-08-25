@@ -79,15 +79,17 @@ export default function MyListings() {
                 key={listing.id}
                 className="flex flex-col gap-3 rounded-2xl border border-gray-200 p-4 transition-colors hover:border-gray-300 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-gray-900">{listing.title}</p>
+                <Link to={`/listings/${listing.id}`} className="min-w-0 group">
+                  <p className="truncate font-semibold text-gray-900 group-hover:text-rose-600">
+                    {listing.title}
+                  </p>
                   <p className="text-sm text-gray-500">
                     {formatPrice(listing.price)} · {listing.district}, {listing.city}
                   </p>
                   {listing.status === 'TU_CHOI' && listing.rejectReason && (
                     <p className="mt-1 text-sm text-red-600">Lý do: {listing.rejectReason}</p>
                   )}
-                </div>
+                </Link>
 
                 <div className="flex flex-shrink-0 items-center gap-3">
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${status?.className}`}>

@@ -16,7 +16,7 @@ function formatBudget(budget) {
 function isNew(createdAt) {
   if (!createdAt) return false;
   const days = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
-  return days <= 7;
+  return days <= 2;
 }
 
 export default function RoommateCard({ profile, favorited, onToggleFavorite }) {

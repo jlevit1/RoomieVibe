@@ -35,6 +35,8 @@ public class CreateListingRequest {
     @NotBlank(message = "Quan/huyen khong duoc de trong")
     private String district;
 
+    private String ward;
+
     @NotBlank(message = "Dia chi khong duoc de trong")
     private String address;
 

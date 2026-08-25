@@ -71,6 +71,7 @@ public class RoomListingServiceImpl implements RoomListingService {
         listing.setArea(request.getArea());
         listing.setCity(request.getCity());
         listing.setDistrict(request.getDistrict());
+        listing.setWard(request.getWard());
         listing.setAddress(request.getAddress());
         listing.setLatitude(request.getLatitude());
         listing.setLongitude(request.getLongitude());
@@ -168,6 +169,7 @@ public class RoomListingServiceImpl implements RoomListingService {
                 .area(listing.getArea())
                 .city(listing.getCity())
                 .district(listing.getDistrict())
+                .ward(listing.getWard())
                 .address(listing.getAddress())
                 .latitude(listing.getLatitude())
                 .longitude(listing.getLongitude())

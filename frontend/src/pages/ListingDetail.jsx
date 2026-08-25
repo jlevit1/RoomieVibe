@@ -7,6 +7,7 @@ import { AMENITY_LABELS } from '../constants/amenities';
 import { AMENITY_ICONS } from '../constants/amenityIcons';
 import FavoriteButton from '../components/FavoriteButton';
 import ReviewSection from '../components/ReviewSection';
+import ListingMap from '../components/ListingMap';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '../context/AuthContext';
 
@@ -119,7 +120,9 @@ export default function ListingDetail() {
             <div className="mb-1 flex items-start justify-between gap-3">
               <h1 className="text-2xl font-bold text-gray-900">{listing.title}</h1>
             </div>
-            <p className="mb-3 text-gray-500">{listing.address}, {listing.district}, {listing.city}</p>
+            <p className="mb-3 text-gray-500">
+              {[listing.address, listing.ward, listing.district, listing.city].filter(Boolean).join(', ')}
+            </p>
             <p className="text-base font-bold text-rose-600">{formatPrice(listing.price)}</p>
           </div>
 
@@ -185,12 +188,10 @@ export default function ListingDetail() {
             </div>
           )}
 
-          {/* Map placeholder */}
+          {/* Map */}
           <div>
             <h2 className="mb-2 font-semibold text-gray-900">Vị trí</h2>
-            <div className="flex h-56 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 via-rose-50 to-white text-sm text-rose-700">
-              Bản đồ sẽ sớm ra mắt
-            </div>
+            <ListingMap latitude={listing.latitude} longitude={listing.longitude} />
           </div>
         </div>
 
