@@ -16,6 +16,7 @@ import com.example.project.entity.PaymentTransaction;
 import com.example.project.entity.User;
 import com.example.project.entity.WalletTransaction;
 import com.example.project.entity.WalletTransactionType;
+import com.example.project.exception.BadRequestException;
 import com.example.project.exception.ResourceNotFoundException;
 import com.example.project.repository.PaymentTransactionRepository;
 import com.example.project.repository.UserRepository;
@@ -42,6 +43,21 @@ public class WalletServiceImpl implements WalletService {
                 .map(this::toResponse)
                 .toList();
         return WalletResponse.builder().balance(user.getBalance()).transactions(history).build();
+    }
+
+    @Override
+    public void debit(User user, BigDecimal amount, WalletTransactionType type) {
+        // The guarded atomic update is the authoritative sufficient-funds check, so concurrent charges can't overdraw.
+        int updated = userRepository.adjustBalanceAtomic(user.getId(), amount.negate());
+        if (updated == 0) {
+            throw new BadRequestException("So du vi khong du, vui long nap them tien");
+        }
+        walletTransactionRepository.save(WalletTransaction.builder()
+                .user(user)
+                .type(type)
+                .amount(amount)
+                .balanceAfter(userRepository.getBalance(user.getId()))
+                .build());
     }
 
     @Override
@@ -101,9 +117,11 @@ public class WalletServiceImpl implements WalletService {
         if ("00".equals(responseCode)) {
             tx.setStatus(PaymentStatus.SUCCESS);
             User user = tx.getUser();
-            BigDecimal newBalance = user.getBalance().add(tx.getAmount());
-            user.setBalance(newBalance);
-            userRepository.save(user);
+            // Atomic DB-level update so this can't race with a concurrent deposit
+            // payment/refund touching the same user's balance (see
+            // UserRepository.adjustBalanceAtomic).
+            userRepository.adjustBalanceAtomic(user.getId(), tx.getAmount());
+            BigDecimal newBalance = userRepository.getBalance(user.getId());
 
             walletTransactionRepository.save(WalletTransaction.builder()
                     .user(user)

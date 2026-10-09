@@ -21,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Formula;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -107,6 +108,15 @@ public class RoomListing {
 
     @Column(nullable = false)
     private Instant expiresAt;
+
+    private Instant promotedUntil;
+
+    // Computed in the same SELECT as the listing, so card lists don't need a query per listing.
+    @Formula("(SELECT AVG(r.rating) FROM listing_reviews r WHERE r.listing_id = id)")
+    private Double averageRating;
+
+    @Formula("(SELECT COUNT(*) FROM listing_reviews r WHERE r.listing_id = id)")
+    private Long reviewCount;
 
     @PrePersist
     protected void onCreate() {

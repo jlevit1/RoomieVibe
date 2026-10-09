@@ -14,4 +14,5 @@ public class AdminStatsResponse {
     private long pendingListings;
     private long approvedListings;
     private long rejectedListings;
+    private long rentedListings;
 }

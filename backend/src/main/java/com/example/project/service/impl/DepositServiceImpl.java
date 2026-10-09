@@ -50,6 +50,9 @@ public class DepositServiceImpl implements DepositService {
         if (deposit.getStatus() != DepositStatus.CHO_THANH_TOAN) {
             throw new BadRequestException("Yeu cau dat coc khong o trang thai cho thanh toan");
         }
+        // Fast-path check only - the authoritative check is inside adjustBalance,
+        // against the row-locked balance, so two concurrent "pay" calls can't both
+        // pass this and overdraw the wallet.
         if (renter.getBalance().compareTo(deposit.getAmount()) < 0) {
             throw new BadRequestException("So du vi khong du, vui long nap them tien");
         }
@@ -155,9 +158,14 @@ public class DepositServiceImpl implements DepositService {
     }
 
     private void adjustBalance(User user, BigDecimal delta, WalletTransactionType type) {
-        BigDecimal newBalance = user.getBalance().add(delta);
-        user.setBalance(newBalance);
-        userRepository.save(user);
+        // Atomic DB-level update - see UserRepository.adjustBalanceAtomic for why
+        // a plain read-modify-write on the entity is unsafe under concurrency.
+        int updated = userRepository.adjustBalanceAtomic(user.getId(), delta);
+        if (updated == 0) {
+            throw new BadRequestException("So du vi khong du, vui long nap them tien");
+        }
+        BigDecimal newBalance = userRepository.getBalance(user.getId());
+
         walletTransactionRepository.save(WalletTransaction.builder()
                 .user(user)
                 .type(type)

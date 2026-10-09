@@ -20,6 +20,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
 
     List<Conversation> findByListing_LandlordOrderByCreatedAtDesc(User landlord);
 
+    List<Conversation> findByListingOrderByCreatedAtDesc(RoomListing listing);
+
     List<Conversation> findByRoommateProfile_UserOrderByCreatedAtDesc(User user);
 
     boolean existsByIdAndRenter_Email(Long id, String email);

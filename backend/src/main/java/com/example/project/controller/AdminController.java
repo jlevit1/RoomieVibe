@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.project.dto.request.ResolveDisputeRequest;
+import com.example.project.dto.response.AdminAnalyticsResponse;
 import com.example.project.dto.response.AdminStatsResponse;
 import com.example.project.dto.response.ChatMessageResponse;
 import com.example.project.dto.response.DepositBookingResponse;
@@ -36,6 +38,12 @@ public class AdminController {
     @GetMapping("/stats")
     public ResponseEntity<AdminStatsResponse> getStats() {
         return ResponseEntity.ok(adminService.getStats());
+    }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<AdminAnalyticsResponse> getAnalytics(
+            @RequestParam(defaultValue = "30") int days) {
+        return ResponseEntity.ok(adminService.getAnalytics(days));
     }
 
     @GetMapping("/users")

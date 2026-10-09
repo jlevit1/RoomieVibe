@@ -19,9 +19,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -31,6 +36,7 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,15 +65,32 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/listings/*/views").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/roommate-profiles/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/roommate-profiles/browse", "/api/roommate-profiles/*")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                         .requestMatchers("/api/wallet/topup/ipn").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ai/search").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated())
+                // Without this, Spring Security's fallback entry point for a missing/invalid/
+                // expired token is Http403ForbiddenEntryPoint - a 403, which reads as "you're
+                // logged in but not allowed" when the real problem is "you're not authenticated
+                // at all". The frontend only knows to clear the stale session and send the user
+                // back to /login on 401, so every protected endpoint silently no-oped instead.
+                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    Map<String, Object> body = Map.of(
+                            "timestamp", LocalDateTime.now().toString(),
+                            "status", HttpServletResponse.SC_UNAUTHORIZED,
+                            "message", "Chua dang nhap hoac phien da het han");
+                    response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+                }))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

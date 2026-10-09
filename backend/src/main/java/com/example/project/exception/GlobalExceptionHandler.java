@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -44,6 +45,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<?> handleDisabled(DisabledException ex) {
         return build(HttpStatus.UNAUTHORIZED, "Tai khoan da bi vo hieu hoa");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        // Catches unique-constraint races that slip past application-level
+        // check-then-act guards (e.g. two concurrent requests for the same
+        // email/favorite/etc.) - a clean 409 instead of a raw 500 leaking the
+        // DB error message.
+        return build(HttpStatus.CONFLICT, "Du lieu bi trung, vui long thu lai");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

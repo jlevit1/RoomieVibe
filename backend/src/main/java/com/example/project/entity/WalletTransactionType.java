@@ -4,5 +4,6 @@ public enum WalletTransactionType {
     NAP_TIEN,
     GIU_COC,
     HOAN_COC,
-    NHAN_COC
+    NHAN_COC,
+    DAY_TIN
 }

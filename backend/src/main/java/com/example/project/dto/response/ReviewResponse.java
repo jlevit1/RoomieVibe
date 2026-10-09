@@ -16,4 +16,6 @@ public class ReviewResponse {
     private String comment;
     private Instant createdAt;
     private boolean own;
+    // RENTED (landlord confirmed them as tenant), DEPOSIT (completed a viewing deposit), or null.
+    private String verifiedType;
 }

@@ -9,5 +9,12 @@ cloudinary.api-secret=your-cloudinary-api-secret
 vnp.tmnCode=your-vnpay-sandbox-tmn-code
 vnp.hashSecret=your-vnpay-sandbox-hash-secret
 
+# Free API key tu aistudio.google.com - dung cho tro ly AI tim phong (/api/ai/search)
+gemini.api-key=your-gemini-api-key
+
+# Goong REST API key (cung key VITE_GOONG_API_KEY o frontend/.env) - dinh vi dia danh khi tro ly AI
+# nhan yeu cau "tim phong gan <dia diem>"
+goong.api-key=your-goong-rest-api-key
+
 # Tat DataSeeder (mac dinh bat) neu khong muon tu dong them du lieu test khi chay backend
 app.seed.enabled=true

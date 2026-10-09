@@ -13,4 +13,5 @@ public class ReviewSummaryResponse {
     private Double averageRating;
     private int totalReviews;
     private List<ReviewResponse> reviews;
+    private boolean canReview;
 }

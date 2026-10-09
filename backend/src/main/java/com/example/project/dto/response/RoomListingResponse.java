@@ -38,4 +38,10 @@ public class RoomListingResponse {
     private Instant createdAt;
     private Instant updatedAt;
     private Instant expiresAt;
+    private Instant promotedUntil;
+    private boolean promoted;
+    private Double averageRating;
+    private long reviewCount;
+    // Only set by landmark (nearby) search - distance from the searched place, in km.
+    private Double distanceKm;
 }

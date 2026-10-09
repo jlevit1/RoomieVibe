@@ -15,7 +15,9 @@ import com.example.project.dto.response.ConversationResponse;
 import com.example.project.entity.ChatMessage;
 import com.example.project.entity.Conversation;
 import com.example.project.entity.DepositBooking;
+import com.example.project.entity.ListingStatus;
 import com.example.project.entity.MessageType;
+import com.example.project.entity.NotificationType;
 import com.example.project.entity.RoomListing;
 import com.example.project.entity.RoommateProfile;
 import com.example.project.entity.User;
@@ -28,6 +30,7 @@ import com.example.project.repository.RoomListingRepository;
 import com.example.project.repository.RoommateProfileRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.ChatService;
+import com.example.project.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,6 +49,7 @@ public class ChatServiceImpl implements ChatService {
     private final DepositBookingRepository depositBookingRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMapper chatMapper;
+    private final NotificationService notificationService;
 
     @Override
     public ConversationResponse getOrCreateConversation(String email, Long listingId) {
@@ -56,9 +60,14 @@ public class ChatServiceImpl implements ChatService {
             throw new BadRequestException("Khong the tu nhan tin cho tin dang cua chinh minh");
         }
 
+        // Existing threads stay open after the room is rented; only brand-new ones are refused.
         Conversation conversation = conversationRepository.findByListingAndRenter(listing, user)
-                .orElseGet(() -> conversationRepository.save(
-                        Conversation.builder().listing(listing).renter(user).build()));
+                .orElseGet(() -> {
+                    if (listing.getStatus() == ListingStatus.DA_CHO_THUE) {
+                        throw new BadRequestException("Phong nay da duoc cho thue");
+                    }
+                    return conversationRepository.save(Conversation.builder().listing(listing).renter(user).build());
+                });
 
         return toConversationResponse(conversation, user);
     }
@@ -150,6 +159,12 @@ public class ChatServiceImpl implements ChatService {
                 .content(content)
                 .build());
 
+        User recipient = conversation.getRenter().getId().equals(user.getId())
+                ? otherPartyUser(conversation)
+                : conversation.getRenter();
+        notificationService.notify(recipient, NotificationType.NEW_MESSAGE,
+                "Tin nhan moi tu " + user.getFullName(), "/messages/" + conversation.getId());
+
         return broadcast(message);
     }
 
@@ -164,6 +179,9 @@ public class ChatServiceImpl implements ChatService {
         if (!conversation.getListing().getLandlord().getId().equals(user.getId())) {
             throw new BadRequestException("Chi chu tin dang moi tao duoc yeu cau dat coc");
         }
+        if (conversation.getListing().getStatus() == ListingStatus.DA_CHO_THUE) {
+            throw new BadRequestException("Phong da cho thue, khong the tao yeu cau dat coc moi");
+        }
         assertNotSpamming(conversation, user);
 
         DepositBooking depositBooking = depositBookingRepository.save(
@@ -175,6 +193,10 @@ public class ChatServiceImpl implements ChatService {
                 .type(MessageType.DEPOSIT_REQUEST)
                 .depositBooking(depositBooking)
                 .build());
+
+        notificationService.notify(conversation.getRenter(), NotificationType.DEPOSIT_REQUEST,
+                "Yeu cau dat coc " + amount.stripTrailingZeros().toPlainString() + "d",
+                "/messages/" + conversation.getId());
 
         return broadcast(message);
     }

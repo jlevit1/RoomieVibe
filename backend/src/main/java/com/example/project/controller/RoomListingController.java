@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +23,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.project.dto.request.BoostListingRequest;
 import com.example.project.dto.request.CreateListingRequest;
+import com.example.project.dto.request.MarkRentedRequest;
 import com.example.project.dto.request.RejectListingRequest;
+import com.example.project.dto.response.BoostPackageResponse;
+import com.example.project.dto.response.ListingMapPoint;
 import com.example.project.dto.response.RoomListingResponse;
+import com.example.project.dto.response.TenantCandidateResponse;
 import com.example.project.entity.Amenity;
 import com.example.project.service.RoomListingService;
 
@@ -78,6 +84,12 @@ public class RoomListingController {
         return ResponseEntity.ok(roomListingService.getById(id));
     }
 
+    @PostMapping("/{id}/views")
+    public ResponseEntity<Void> recordView(@PathVariable Long id) {
+        roomListingService.recordView(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('LANDLORD')")
     public ResponseEntity<RoomListingResponse> update(Authentication authentication,
@@ -103,6 +115,54 @@ public class RoomListingController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RoomListingResponse>> getPending() {
         return ResponseEntity.ok(roomListingService.getPending());
+    }
+
+    @GetMapping("/map-points")
+    public ResponseEntity<List<ListingMapPoint>> getMapPoints() {
+        return ResponseEntity.ok(roomListingService.getMapPoints());
+    }
+
+    @GetMapping("/recommended")
+    public ResponseEntity<List<RoomListingResponse>> getRecommended(Authentication authentication) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.ok(List.of());
+        }
+        return ResponseEntity.ok(roomListingService.getRecommended(authentication.getName()));
+    }
+
+    @PatchMapping("/{id}/rented")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<RoomListingResponse> markRented(Authentication authentication,
+                                                           @PathVariable Long id,
+                                                           @RequestBody(required = false) MarkRentedRequest request) {
+        Long tenantId = request != null ? request.getTenantId() : null;
+        return ResponseEntity.ok(roomListingService.markRented(authentication.getName(), id, tenantId));
+    }
+
+    @PatchMapping("/{id}/available")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<RoomListingResponse> markAvailable(Authentication authentication, @PathVariable Long id) {
+        return ResponseEntity.ok(roomListingService.markAvailable(authentication.getName(), id));
+    }
+
+    @GetMapping("/{id}/tenant-candidates")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<List<TenantCandidateResponse>> getTenantCandidates(Authentication authentication,
+                                                                              @PathVariable Long id) {
+        return ResponseEntity.ok(roomListingService.getTenantCandidates(authentication.getName(), id));
+    }
+
+    @GetMapping("/boost-packages")
+    public ResponseEntity<List<BoostPackageResponse>> getBoostPackages() {
+        return ResponseEntity.ok(roomListingService.getBoostPackages());
+    }
+
+    @PostMapping("/{id}/boost")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<RoomListingResponse> boost(Authentication authentication,
+                                                      @PathVariable Long id,
+                                                      @Valid @RequestBody BoostListingRequest request) {
+        return ResponseEntity.ok(roomListingService.boost(authentication.getName(), id, request.getPackageCode()));
     }
 
     @PatchMapping("/{id}/approve")
