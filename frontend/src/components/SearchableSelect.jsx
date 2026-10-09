@@ -67,7 +67,7 @@ export default function SearchableSelect({
                 <button
                   type="button"
                   onClick={() => handleSelect(option)}
-                  className="block w-full px-3.5 py-2 text-left text-sm text-gray-700 hover:bg-rose-50"
+                  className="block w-full px-3.5 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                 >
                   {option}
                 </button>

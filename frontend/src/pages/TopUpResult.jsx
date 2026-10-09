@@ -4,7 +4,7 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 import { getWallet } from '../services/walletService';
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+  return new Intl.NumberFormat('vi-VN').format(value) + 'đ';
 }
 
 export default function TopUpResult() {
@@ -19,31 +19,30 @@ export default function TopUpResult() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-md px-6 py-16 text-center">
-      {success ? (
-        <CheckCircle2 size={48} className="mx-auto mb-4 text-green-600" />
-      ) : (
-        <XCircle size={48} className="mx-auto mb-4 text-red-600" />
-      )}
-      <h1 className="mb-2 text-xl font-bold text-gray-900">
-        {success ? 'Nạp tiền thành công' : 'Giao dịch không thành công'}
-      </h1>
-      <p className="mb-6 text-sm text-gray-500">
-        {success
-          ? 'Số dư ví của bạn đã được cập nhật.'
-          : 'Giao dịch đã bị hủy hoặc gặp lỗi. Bạn có thể thử lại.'}
-      </p>
-      {balance != null && (
-        <p className="mb-6 text-lg font-semibold text-gray-900">
-          Số dư hiện tại: {formatCurrency(balance)}
+    <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-gray-50 px-4 py-12 sm:px-6">
+      <div className="surface w-full max-w-md p-8 text-center sm:p-10">
+        {success ? (
+          <CheckCircle2 size={44} className="mx-auto text-emerald-600" />
+        ) : (
+          <XCircle size={44} className="mx-auto text-red-600" />
+        )}
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+          {success ? 'Nạp tiền thành công' : 'Giao dịch chưa thành công'}
+        </h1>
+        <p className="mt-2 text-gray-600">
+          {success
+            ? 'Số dư ví đã được cập nhật.'
+            : 'Giao dịch đã bị hủy hoặc gặp lỗi, tiền chưa bị trừ. Bạn có thể thử lại.'}
         </p>
-      )}
-      <Link
-        to="/wallet"
-        className="inline-block rounded-full bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700"
-      >
-        Quay lại Ví của tôi
-      </Link>
+        {balance != null && (
+          <p className="mt-6 rounded-xl bg-gray-50 px-4 py-3 text-gray-700">
+            Số dư hiện tại <span className="font-bold text-gray-900">{formatCurrency(balance)}</span>
+          </p>
+        )}
+        <Link to="/wallet" className="btn-primary mt-6 w-full py-3">
+          Về ví của tôi
+        </Link>
+      </div>
     </div>
   );
 }
