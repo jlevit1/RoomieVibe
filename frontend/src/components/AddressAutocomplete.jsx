@@ -9,6 +9,7 @@ export default function AddressAutocomplete({
   onChange,
   onSelectLocation,
   required,
+  placeholder,
   className,
 }) {
   const [suggestions, setSuggestions] = useState([]);
@@ -60,6 +61,7 @@ export default function AddressAutocomplete({
         onChange={handleInputChange}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         required={required}
+        placeholder={placeholder}
         autoComplete="off"
         className={className}
       />
@@ -70,9 +72,9 @@ export default function AddressAutocomplete({
               <button
                 type="button"
                 onClick={() => handleSelect(s)}
-                className="flex w-full items-start gap-2 px-3.5 py-2.5 text-left text-sm hover:bg-rose-50"
+                className="flex w-full items-start gap-2 px-3.5 py-2.5 text-left text-sm hover:bg-gray-50"
               >
-                <MapPin size={15} className="mt-0.5 flex-shrink-0 text-rose-500" />
+                <MapPin size={15} className="mt-0.5 flex-shrink-0 text-gray-400" />
                 <span>
                   <span className="block text-gray-900">
                     {s.structured_formatting?.main_text || s.description}

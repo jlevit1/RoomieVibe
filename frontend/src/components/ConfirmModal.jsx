@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+// `requireInput` shows a textarea whose value is passed to onConfirm; `inputOptional` lets it be left empty.
 export default function ConfirmModal({
   open,
   title,
@@ -8,6 +9,7 @@ export default function ConfirmModal({
   cancelLabel = 'Hủy',
   danger = false,
   requireInput = false,
+  inputOptional = false,
   inputPlaceholder = '',
   onConfirm,
   onCancel,
@@ -18,44 +20,50 @@ export default function ConfirmModal({
     if (open) setInputValue('');
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    function handleKey(e) {
+      if (e.key === 'Escape') onCancel();
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open, onCancel]);
+
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-      onClick={onCancel}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 px-4" onClick={onCancel}>
       <div
-        className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-[0_24px_48px_-12px_rgba(20,79,112,0.35)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-1.5 text-base font-semibold text-gray-900">{title}</h3>
-        {message && <p className="mb-4 text-sm leading-relaxed text-gray-600">{message}</p>}
+        <h2 id="confirm-modal-title" className="text-lg font-semibold text-gray-900">
+          {title}
+        </h2>
+        {message && <p className="mt-2 text-sm leading-relaxed text-gray-600">{message}</p>}
         {requireInput && (
           <textarea
             autoFocus
+            aria-label={title}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={inputPlaceholder}
             rows={3}
-            className="mb-4 w-full rounded-xl border border-gray-200 p-3 text-sm focus:border-rose-400 focus:outline-none"
+            className="field-input mt-4 resize-none"
           />
         )}
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-          >
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" onClick={onCancel} className="btn-secondary">
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={() => onConfirm(requireInput ? inputValue : undefined)}
-            disabled={requireInput && !inputValue.trim()}
-            className={`rounded-full px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-              danger ? 'bg-red-600 hover:bg-red-700' : 'bg-rose-600 hover:bg-rose-700'
-            }`}
+            disabled={requireInput && !inputOptional && !inputValue.trim()}
+            className={danger ? 'btn-danger' : 'btn-primary'}
           >
             {confirmLabel}
           </button>

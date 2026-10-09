@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { X, Upload, Loader2 } from 'lucide-react';
+import { X, Plus, Loader2 } from 'lucide-react';
 import { uploadImage } from '../services/uploadService';
 
 export default function ImageUploader({ images, onChange, maxImages = 10 }) {
@@ -19,7 +19,7 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }) {
       const urls = await Promise.all(filesToUpload.map(uploadImage));
       onChange([...images, ...urls]);
     } catch (err) {
-      setError(err.response?.data?.message || 'Upload ảnh thất bại');
+      setError(err.response?.data?.message || 'Tải ảnh lên thất bại, thử lại nhé');
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -32,16 +32,22 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }) {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-3">
-        {images.map((url) => (
-          <div key={url} className="relative h-24 w-24 overflow-hidden rounded-xl border border-gray-200">
-            <img src={url} alt="" className="h-full w-full object-cover" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {images.map((url, i) => (
+          <div key={url} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
+            <img src={url} alt={`Ảnh ${i + 1}`} className="h-full w-full object-cover" />
+            {i === 0 && (
+              <span className="absolute bottom-2 left-2 rounded-md bg-white/95 px-2 py-0.5 text-xs font-semibold text-gray-900">
+                Ảnh bìa
+              </span>
+            )}
             <button
               type="button"
               onClick={() => removeImage(url)}
-              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+              aria-label={`Xóa ảnh ${i + 1}`}
+              className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-gray-900/70 text-white transition-colors hover:bg-gray-900"
             >
-              <X size={12} />
+              <X size={14} />
             </button>
           </div>
         ))}
@@ -51,24 +57,18 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }) {
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-rose-400 hover:text-rose-500"
+            className="flex aspect-[4/3] flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-gray-300 text-gray-600 transition-colors hover:border-gray-500 hover:text-gray-900 disabled:cursor-wait"
           >
-            {uploading ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
-            <span className="text-xs">{uploading ? 'Đang tải...' : 'Thêm ảnh'}</span>
+            {uploading ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
+            <span className="text-sm font-medium">{uploading ? 'Đang tải lên...' : 'Thêm ảnh'}</span>
+            {!uploading && <span className="text-xs text-gray-500">Còn {maxImages - images.length} ảnh</span>}
           </button>
         )}
       </div>
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleFiles}
-        className="hidden"
-      />
+      <input ref={inputRef} type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
   );
 }

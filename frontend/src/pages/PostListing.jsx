@@ -1,17 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import {
-  AlertCircle,
-  ArrowLeft,
-  Check,
-  Images,
-  Info,
-  ListChecks,
-  MapPin,
-  Phone,
-  Ruler,
-  Wallet,
-} from 'lucide-react';
+import { CheckCircle2, Circle, MapPin } from 'lucide-react';
 import { createListing, getMyListings, updateListing } from '../services/listingService';
 import { AMENITY_LABELS, AMENITY_OPTIONS } from '../constants/amenities';
 import ImageUploader from '../components/ImageUploader';
@@ -38,9 +27,30 @@ const EMPTY_FORM = {
   imageUrls: [],
 };
 
-const inputClass =
-  'w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20';
-const labelClass = 'mb-1.5 block text-sm font-medium text-gray-700';
+const MAX_IMAGES = 6;
+
+function Optional() {
+  return <span className="font-normal text-gray-500"> (không bắt buộc)</span>;
+}
+
+function Section({ title, desc, children }) {
+  return (
+    <section className="surface p-5 sm:p-7">
+      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+      {desc && <p className="mt-0.5 text-sm text-gray-600">{desc}</p>}
+      <div className="mt-5 space-y-5">{children}</div>
+    </section>
+  );
+}
+
+function SuffixInput({ suffix, children }) {
+  return (
+    <div className="relative">
+      {children}
+      <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-500">{suffix}</span>
+    </div>
+  );
+}
 
 export default function PostListing() {
   const { id } = useParams();
@@ -57,7 +67,13 @@ export default function PostListing() {
     getMyListings().then((listings) => {
       const listing = listings.find((l) => String(l.id) === id);
       if (listing) {
-        setForm({ ...EMPTY_FORM, ...listing });
+        setForm({
+          ...EMPTY_FORM,
+          ...listing,
+          description: listing.description || '',
+          amenities: [...(listing.amenities || [])],
+          imageUrls: [...(listing.imageUrls || [])],
+        });
       }
     });
   }, [id, isEdit]);
@@ -100,9 +116,7 @@ export default function PostListing() {
       const has = prev.amenities.includes(amenity);
       return {
         ...prev,
-        amenities: has
-          ? prev.amenities.filter((a) => a !== amenity)
-          : [...prev.amenities, amenity],
+        amenities: has ? prev.amenities.filter((a) => a !== amenity) : [...prev.amenities, amenity],
       };
     });
   }
@@ -126,308 +140,324 @@ export default function PostListing() {
       navigate('/listings/mine');
     } catch (err) {
       setError(err.response?.data?.message || 'Có lỗi xảy ra, thử lại nhé');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
     }
   }
 
   const previewThumbnail = form.imageUrls?.[0];
-  const previewLocation = [form.ward, form.district, form.city].filter(Boolean).join(', ');
+  const previewLocation = [form.district, form.city].filter(Boolean).join(', ');
+  const checks = [
+    { label: 'Tiêu đề và giá thuê', done: form.title.trim().length >= 10 && Number(form.price) > 0 },
+    { label: 'Ghim vị trí trên bản đồ', done: form.latitude != null && form.longitude != null },
+    { label: 'Ít nhất 3 ảnh thật của phòng', done: form.imageUrls.length >= 3 },
+    { label: 'Mô tả từ 100 ký tự', done: form.description.trim().length >= 100 },
+    { label: 'Chọn tiện ích có sẵn', done: form.amenities.length > 0 },
+  ];
+  const doneCount = checks.filter((c) => c.done).length;
+
+  let submitLabel = isEdit ? 'Lưu thay đổi' : 'Gửi tin để duyệt';
+  if (loading) submitLabel = 'Đang lưu...';
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <Link
-        to="/listings/mine"
-        className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-gray-500 transition-colors hover:text-rose-600"
-      >
-        <ArrowLeft size={15} /> Tin đăng của tôi
-      </Link>
+    <div className="bg-gray-50">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-gray-500">
+          <Link to="/listings/mine" className="hover:text-gray-900">
+            Tin đăng của tôi
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-gray-900">{isEdit ? 'Sửa tin' : 'Đăng tin mới'}</span>
+        </nav>
+        <h1 className="page-title mt-3">{isEdit ? 'Sửa tin đăng' : 'Đăng tin cho thuê phòng'}</h1>
+        <p className="mt-1 text-gray-600">
+          {isEdit
+            ? 'Tin đã sửa sẽ được duyệt lại trước khi hiển thị.'
+            : 'Tin được duyệt trong ngày. Thông tin càng rõ, người thuê càng dễ quyết định.'}
+        </p>
 
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-        {isEdit ? 'Sửa tin đăng' : 'Đăng tin phòng trọ'}
-      </h1>
-      <p className="mb-6 text-sm text-gray-500">
-        Điền đầy đủ thông tin để tin đăng được duyệt nhanh hơn.
-      </p>
+        {error && <div className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-      {error && (
-        <div className="mb-5 flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-          <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-      <div className="space-y-6 lg:col-span-2">
-        <div className="space-y-5 rounded-2xl border border-gray-200 p-6 sm:p-7">
-          <SectionHeader
-            Icon={Info}
-            title="Thông tin cơ bản"
-            desc="Tiêu đề, mô tả và mức giá cho thuê"
-          />
-
-          <div>
-            <label htmlFor="title" className={labelClass}>Tiêu đề</label>
-            <input
-              id="title"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              required
-              placeholder="VD: Phòng trọ mới, gần trung tâm, đầy đủ nội thất"
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="description" className={labelClass}>Mô tả</label>
-            <textarea
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Mô tả chi tiết về phòng, khu vực xung quanh, quy định..."
-              className={inputClass}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="price" className={labelClass}>Giá (đ/tháng)</label>
-              <div className="relative">
-                <Wallet size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <CurrencyInput
-                  id="price"
-                  name="price"
-                  value={form.price}
+        <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-8">
+          <div className="space-y-6">
+            <Section title="Thông tin cơ bản" desc="Tiêu đề nên có loại phòng, khu vực và điểm nổi bật.">
+              <div>
+                <label htmlFor="title" className="field-label">
+                  Tiêu đề
+                </label>
+                <input
+                  id="title"
+                  name="title"
+                  value={form.title}
                   onChange={handleChange}
                   required
-                  className={`${inputClass} pl-10`}
+                  maxLength={120}
+                  placeholder="VD: Phòng trọ Cầu Giấy có gác, gần ĐH Quốc gia"
+                  className="field-input"
                 />
               </div>
-            </div>
-            <div>
-              <label htmlFor="area" className={labelClass}>
-                Diện tích (m²) <span className="font-normal text-gray-400">· Tuỳ chọn</span>
-              </label>
-              <div className="relative">
-                <Ruler size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  id="area"
-                  type="number"
-                  name="area"
-                  value={form.area}
+
+              <div>
+                <label htmlFor="description" className="field-label">
+                  Mô tả
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={form.description}
                   onChange={handleChange}
-                  className={`${inputClass} pl-10`}
+                  rows={6}
+                  placeholder="Diện tích, nội thất, giờ giấc, chi phí điện nước, khu vực xung quanh..."
+                  className="field-input resize-y"
                 />
+                <p className="mt-1.5 text-right text-xs text-gray-500">{form.description.trim().length} ký tự</p>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="space-y-5 rounded-2xl border border-gray-200 p-6 sm:p-7">
-          <SectionHeader
-            Icon={MapPin}
-            title="Vị trí"
-            desc="Địa chỉ chính xác giúp người thuê dễ tìm và tin tưởng hơn"
-          />
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div>
-              <label htmlFor="city" className={labelClass}>Tỉnh/thành phố</label>
-              <SearchableSelect
-                id="city"
-                name="city"
-                value={form.city}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, city: e.target.value, district: '', ward: '' }))
-                }
-                options={PROVINCE_NAMES}
-                placeholder="Chọn tỉnh/thành phố"
-                required
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="district" className={labelClass}>Quận/huyện</label>
-              <SearchableSelect
-                id="district"
-                name="district"
-                value={form.district}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, district: e.target.value, ward: '' }))
-                }
-                options={getDistrictNamesForProvince(form.city)}
-                placeholder={form.city ? 'Chọn quận/huyện' : 'Chọn tỉnh/thành trước'}
-                disabled={!form.city}
-                required
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="ward" className={labelClass}>
-                Phường/xã <span className="font-normal text-gray-400">· Tuỳ chọn</span>
-              </label>
-              <SearchableSelect
-                id="ward"
-                name="ward"
-                value={form.ward}
-                onChange={handleChange}
-                options={wardOptions}
-                placeholder={wardPlaceholder}
-                disabled={!form.district || loadingWards}
-                className={inputClass}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="address" className={labelClass}>Địa chỉ đầy đủ</label>
-            <AddressAutocomplete
-              id="address"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              onSelectLocation={handleLocationSelect}
-              required
-              className={inputClass}
-            />
-            <p className="mt-1.5 text-xs text-gray-400">
-              Gõ địa chỉ và chọn gợi ý để ghim đúng vị trí trên bản đồ.
-            </p>
-            {form.latitude != null && form.longitude != null && (
-              <div className="mt-3">
-                <ListingMap latitude={form.latitude} longitude={form.longitude} className="h-40 w-full" />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                  <label htmlFor="price" className="field-label">
+                    Giá thuê
+                  </label>
+                  <SuffixInput suffix="đ/tháng">
+                    <CurrencyInput
+                      id="price"
+                      name="price"
+                      value={form.price}
+                      onChange={handleChange}
+                      required
+                      placeholder="3.500.000"
+                      className="field-input pr-20"
+                    />
+                  </SuffixInput>
+                </div>
+                <div>
+                  <label htmlFor="area" className="field-label">
+                    Diện tích
+                    <Optional />
+                  </label>
+                  <SuffixInput suffix="m²">
+                    <input
+                      id="area"
+                      type="number"
+                      min="1"
+                      name="area"
+                      value={form.area ?? ''}
+                      onChange={handleChange}
+                      placeholder="25"
+                      className="field-input pr-12"
+                    />
+                  </SuffixInput>
+                </div>
+                <div>
+                  <label htmlFor="maxOccupants" className="field-label">
+                    Ở tối đa
+                    <Optional />
+                  </label>
+                  <SuffixInput suffix="người">
+                    <input
+                      id="maxOccupants"
+                      type="number"
+                      min="1"
+                      name="maxOccupants"
+                      value={form.maxOccupants ?? ''}
+                      onChange={handleChange}
+                      placeholder="2"
+                      className="field-input pr-16"
+                    />
+                  </SuffixInput>
+                </div>
               </div>
-            )}
-          </div>
+            </Section>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="contactPhone" className={labelClass}>SĐT liên hệ</label>
-              <div className="relative">
-                <Phone size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Section title="Vị trí" desc="Chọn gợi ý địa chỉ để ghim phòng lên bản đồ. Người thuê tìm theo khoảng cách sẽ thấy tin của bạn.">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                  <label htmlFor="city" className="field-label">
+                    Tỉnh/thành phố
+                  </label>
+                  <SearchableSelect
+                    id="city"
+                    name="city"
+                    value={form.city}
+                    onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value, district: '', ward: '' }))}
+                    options={PROVINCE_NAMES}
+                    placeholder="Chọn tỉnh/thành"
+                    required
+                    className="field-input"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="district" className="field-label">
+                    Quận/huyện
+                  </label>
+                  <SearchableSelect
+                    id="district"
+                    name="district"
+                    value={form.district}
+                    onChange={(e) => setForm((prev) => ({ ...prev, district: e.target.value, ward: '' }))}
+                    options={getDistrictNamesForProvince(form.city)}
+                    placeholder={form.city ? 'Chọn quận/huyện' : 'Chọn tỉnh/thành trước'}
+                    disabled={!form.city}
+                    required
+                    className="field-input"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="ward" className="field-label">
+                    Phường/xã
+                    <Optional />
+                  </label>
+                  <SearchableSelect
+                    id="ward"
+                    name="ward"
+                    value={form.ward}
+                    onChange={handleChange}
+                    options={wardOptions}
+                    placeholder={wardPlaceholder}
+                    disabled={!form.district || loadingWards}
+                    className="field-input"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="address" className="field-label">
+                  Địa chỉ
+                </label>
+                <AddressAutocomplete
+                  id="address"
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  onSelectLocation={handleLocationSelect}
+                  required
+                  placeholder="Số nhà, ngõ, đường"
+                  className="field-input"
+                />
+                {form.latitude != null && form.longitude != null ? (
+                  <div className="mt-3">
+                    <ListingMap latitude={form.latitude} longitude={form.longitude} className="h-48 w-full" />
+                    <p className="mt-1.5 flex items-center gap-1 text-xs text-emerald-700">
+                      <CheckCircle2 size={13} /> Đã ghim vị trí trên bản đồ
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mt-1.5 flex items-center gap-1 text-xs text-gray-500">
+                    <MapPin size={13} /> Gõ địa chỉ rồi chọn một gợi ý để ghim vị trí.
+                  </p>
+                )}
+              </div>
+
+              <div className="sm:max-w-xs">
+                <label htmlFor="contactPhone" className="field-label">
+                  Số điện thoại liên hệ
+                </label>
                 <input
                   id="contactPhone"
                   name="contactPhone"
+                  type="tel"
                   value={form.contactPhone}
                   onChange={handleChange}
                   required
-                  className={`${inputClass} pl-10`}
+                  placeholder="0912 345 678"
+                  className="field-input"
                 />
               </div>
-            </div>
-            <div>
-              <label htmlFor="maxOccupants" className={labelClass}>
-                Số người tối đa <span className="font-normal text-gray-400">· Tuỳ chọn</span>
-              </label>
-              <input
-                id="maxOccupants"
-                type="number"
-                name="maxOccupants"
-                value={form.maxOccupants}
-                onChange={handleChange}
-                className={inputClass}
-              />
-            </div>
-          </div>
-        </div>
+            </Section>
 
-        <div className="space-y-5 rounded-2xl border border-gray-200 p-6 sm:p-7">
-          <SectionHeader
-            Icon={Images}
-            title="Hình ảnh & tiện ích"
-            desc="Ảnh thật giúp tin đăng đáng tin cậy và được duyệt nhanh hơn"
-          />
-
-          <div>
-            <p className={`${labelClass} mb-2`}>Ảnh phòng</p>
-            <ImageUploader
-              images={form.imageUrls}
-              onChange={(imageUrls) => setForm({ ...form, imageUrls })}
-              maxImages={6}
-            />
-          </div>
-
-          <div>
-            <p className={`${labelClass} mb-2`}>Tiện ích</p>
-            <div className="flex flex-wrap gap-2">
-              {AMENITY_OPTIONS.map((amenity) => {
-                const selected = form.amenities.includes(amenity);
-                return (
-                  <button
-                    type="button"
-                    key={amenity}
-                    onClick={() => toggleAmenity(amenity)}
-                    className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
-                      selected
-                        ? 'border-rose-600 bg-rose-600 text-white'
-                        : 'border-gray-300 text-gray-700 hover:border-rose-300'
-                    }`}
-                  >
-                    {selected && <Check size={13} />}
-                    {AMENITY_LABELS[amenity]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="lg:col-span-1">
-        <div className="sticky top-4 space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-gray-200">
-            <div className="flex h-36 items-center justify-center bg-gray-100 text-gray-400">
-              {previewThumbnail ? (
-                <img src={previewThumbnail} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <Images size={24} />
-              )}
-            </div>
-            <div className="space-y-1 p-4">
-              <p className="truncate font-semibold text-gray-900">
-                {form.title || 'Tiêu đề tin đăng'}
-              </p>
-              <p className="truncate text-sm text-gray-500">
-                {previewLocation || 'Vị trí sẽ hiện ở đây'}
-              </p>
-              <p className="text-sm font-bold text-rose-600">
-                {form.price ? `${new Intl.NumberFormat('vi-VN').format(form.price)} đ/tháng` : 'Chưa có giá'}
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
-            <p className="mb-3 flex items-center gap-1.5 text-xs text-gray-500">
-              <ListChecks size={14} className="flex-shrink-0" />
-              Tin đăng sẽ hiển thị công khai sau khi admin duyệt.
-            </p>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-rose-600 py-2.5 text-sm font-semibold text-white transition-all hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50"
+            <Section
+              title="Ảnh phòng"
+              desc={`Tối đa ${MAX_IMAGES} ảnh. Ảnh đầu tiên là ảnh bìa. Chụp ngang, đủ sáng, có cả toàn cảnh phòng và nhà vệ sinh.`}
             >
-              {loading ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Đăng tin'}
-            </button>
-          </div>
-        </div>
-      </div>
-      </form>
-    </div>
-  );
-}
+              <ImageUploader
+                images={form.imageUrls}
+                onChange={(imageUrls) => setForm({ ...form, imageUrls })}
+                maxImages={MAX_IMAGES}
+              />
+            </Section>
 
-function SectionHeader({ Icon, title, desc }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
-        <Icon size={18} />
-      </span>
-      <div className="min-w-0">
-        <h2 className="font-semibold text-gray-900">{title}</h2>
-        <p className="truncate text-xs text-gray-500">{desc}</p>
+            <Section title="Tiện ích" desc="Chỉ chọn những gì phòng thật sự có.">
+              <div className="flex flex-wrap gap-2">
+                {AMENITY_OPTIONS.map((amenity) => {
+                  const selected = form.amenities.includes(amenity);
+                  return (
+                    <button
+                      type="button"
+                      key={amenity}
+                      onClick={() => toggleAmenity(amenity)}
+                      aria-pressed={selected}
+                      className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                        selected
+                          ? 'border-gray-900 bg-gray-900 font-medium text-white'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
+                      }`}
+                    >
+                      {AMENITY_LABELS[amenity]}
+                    </button>
+                  );
+                })}
+              </div>
+            </Section>
+          </div>
+
+          <aside>
+            <div className="space-y-4 lg:sticky lg:top-24">
+              <div className="surface hidden overflow-hidden lg:block">
+                <div className="aspect-[4/3] bg-gray-100">
+                  {previewThumbnail ? (
+                    <img src={previewThumbnail} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">Ảnh bìa hiện ở đây</div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <p className="line-clamp-2 font-semibold text-gray-900">{form.title || 'Tiêu đề tin đăng'}</p>
+                  <p className="mt-1 flex items-center gap-1 truncate text-sm text-gray-600">
+                    <MapPin size={14} className="flex-shrink-0 text-gray-400" />
+                    {previewLocation || 'Khu vực'}
+                  </p>
+                  <p className="mt-3 border-t border-gray-100 pt-3 text-lg font-bold text-orange-600">
+                    {form.price ? new Intl.NumberFormat('vi-VN').format(form.price) + 'đ' : 'Giá thuê'}
+                    <span className="text-sm font-medium text-orange-500">/tháng</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="surface p-5">
+                <div className="flex items-baseline justify-between">
+                  <p className="font-semibold text-gray-900">Độ đầy đủ của tin</p>
+                  <p className="text-sm text-gray-600">
+                    {doneCount}/{checks.length}
+                  </p>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-emerald-600 transition-all"
+                    style={{ width: `${(doneCount / checks.length) * 100}%` }}
+                  />
+                </div>
+                <ul className="mt-4 space-y-2">
+                  {checks.map((c) => (
+                    <li key={c.label} className={`flex items-center gap-2 text-sm ${c.done ? 'text-gray-900' : 'text-gray-500'}`}>
+                      {c.done ? (
+                        <CheckCircle2 size={16} className="flex-shrink-0 text-emerald-600" />
+                      ) : (
+                        <Circle size={16} className="flex-shrink-0 text-gray-300" />
+                      )}
+                      {c.label}
+                    </li>
+                  ))}
+                </ul>
+
+                <button type="submit" disabled={loading} className="btn-primary mt-5 w-full">
+                  {submitLabel}
+                </button>
+                <p className="mt-2 text-center text-xs text-gray-500">Tin hiển thị công khai sau khi được duyệt.</p>
+              </div>
+            </div>
+          </aside>
+        </form>
       </div>
     </div>
   );

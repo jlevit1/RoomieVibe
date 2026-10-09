@@ -4,6 +4,10 @@ export function getStats() {
   return api.get('/admin/stats').then((res) => res.data);
 }
 
+export function getAnalytics(days = 30) {
+  return api.get('/admin/analytics', { params: { days } }).then((res) => res.data);
+}
+
 export function getAllUsers() {
   return api.get('/admin/users').then((res) => res.data);
 }
