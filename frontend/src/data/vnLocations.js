@@ -1,7 +1,16 @@
 import axios from 'axios';
 import provinceDistrict from './vnProvinceDistrict.json';
 
-export const PROVINCES = provinceDistrict;
+// The source data uses full administrative names ("Thành phố Hà Nội", "Tỉnh Bình Dương").
+// The app uses the shorter, everyday form everywhere (city chips, listing cards, search) -
+// strip the prefix so the dropdown here stays in sync with that instead of introducing a
+// second spelling for the same province.
+function shortenProvinceName(fullName) {
+  if (fullName === 'Thành phố Hồ Chí Minh') return 'TP. Hồ Chí Minh';
+  return fullName.replace(/^(Thành phố|Tỉnh)\s+/, '');
+}
+
+export const PROVINCES = provinceDistrict.map((p) => ({ ...p, name: shortenProvinceName(p.name) }));
 export const PROVINCE_NAMES = PROVINCES.map((p) => p.name);
 
 export function getDistrictsForProvince(provinceName) {

@@ -12,8 +12,8 @@ export default function FavoriteButton({ favorited = false, onToggle, className 
       type="button"
       onClick={handleClick}
       aria-label={favorited ? 'Bỏ lưu tin yêu thích' : 'Lưu tin yêu thích'}
-      className={`flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm transition-colors ${
-        favorited ? 'text-rose-600' : 'text-gray-400 hover:text-rose-600'
+      className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors ${
+        favorited ? 'text-rose-500' : 'text-gray-500 hover:text-rose-500'
       } ${className}`}
     >
       <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />

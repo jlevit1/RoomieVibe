@@ -3,6 +3,11 @@ export const STATUS_LABELS = {
   LOOKING_FOR_ROOM: 'Chưa có phòng, tìm bạn ghép trước',
 };
 
+export const STATUS_SHORT_LABELS = {
+  HAS_ROOM: 'Đã có phòng',
+  LOOKING_FOR_ROOM: 'Đang tìm phòng',
+};
+
 export const GENDER_LABELS = {
   MALE: 'Nam',
   FEMALE: 'Nữ',

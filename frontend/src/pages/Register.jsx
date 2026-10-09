@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import { UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+
+const ROLE_OPTIONS = [
+  { value: 'USER', title: 'Tôi đang tìm phòng', desc: 'Thuê phòng hoặc tìm bạn ở ghép' },
+  { value: 'LANDLORD', title: 'Tôi có phòng cho thuê', desc: 'Đăng tin và quản lý phòng' },
+];
 
 export default function Register() {
   const { register, googleLogin } = useAuth();
@@ -46,122 +50,130 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-md flex-col justify-center px-6 py-12">
-      <div className="rounded-2xl border border-gray-200 p-8">
-        <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
-          <UserPlus size={22} />
-        </span>
-
-        <h1 className="mb-1 text-2xl font-bold tracking-tight text-gray-900">Đăng ký tài khoản</h1>
-        <p className="mb-6 text-sm text-gray-500">Chỉ mất một phút để bắt đầu.</p>
+    <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-gray-50 px-4 py-12 sm:px-6">
+      <div className="surface w-full max-w-lg p-8 shadow-[0_24px_48px_-32px_rgba(20,79,112,0.4)] sm:p-10">
+        <h1 className="page-title">Tạo tài khoản</h1>
+        <p className="mt-1.5 text-gray-600">Miễn phí, chỉ mất một phút.</p>
 
         {error && (
-          <div className="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</div>
+          <div role="alert" className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <fieldset>
+            <legend className="field-label">Bạn dùng RoomieVibe để</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {ROLE_OPTIONS.map((option) => (
+                <label
+                  key={option.value}
+                  className={`cursor-pointer rounded-xl border p-3.5 transition-colors ${
+                    form.role === option.value
+                      ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value={option.value}
+                    checked={form.role === option.value}
+                    onChange={handleChange}
+                    className="sr-only"
+                  />
+                  <span className="block text-sm font-semibold text-gray-900">{option.title}</span>
+                  <span className="mt-0.5 block text-xs text-gray-600">{option.desc}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
           <div>
-            <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-gray-700">
+            <label htmlFor="reg-fullname" className="field-label">
               Họ tên
             </label>
             <input
               id="reg-fullname"
               name="fullName"
+              autoComplete="name"
               value={form.fullName}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+              className="field-input"
             />
           </div>
 
           <div>
-            <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-gray-700">
+            <label htmlFor="reg-email" className="field-label">
               Email
             </label>
             <input
               id="reg-email"
               type="email"
               name="email"
+              autoComplete="email"
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+              className="field-input"
             />
           </div>
 
-          <div>
-            <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-gray-700">
-              Mật khẩu
-            </label>
-            <input
-              id="reg-password"
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              minLength={6}
-              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="reg-password" className="field-label">
+                Mật khẩu
+              </label>
+              <input
+                id="reg-password"
+                type="password"
+                name="password"
+                autoComplete="new-password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                minLength={6}
+                className="field-input"
+              />
+              <p className="mt-1 text-xs text-gray-500">Ít nhất 6 ký tự</p>
+            </div>
+            <div>
+              <label htmlFor="reg-phone" className="field-label">
+                Số điện thoại
+              </label>
+              <input
+                id="reg-phone"
+                name="phone"
+                type="tel"
+                placeholder="Không bắt buộc"
+                autoComplete="tel"
+                value={form.phone}
+                onChange={handleChange}
+                className="field-input"
+              />
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="reg-phone" className="mb-1.5 block text-sm font-medium text-gray-700">
-              Số điện thoại
-            </label>
-            <input
-              id="reg-phone"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="reg-role" className="mb-1.5 block text-sm font-medium text-gray-700">
-              Bạn là
-            </label>
-            <select
-              id="reg-role"
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
-            >
-              <option value="USER">Người thuê / tìm bạn ở ghép</option>
-              <option value="LANDLORD">Chủ nhà cho thuê</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-full bg-rose-600 py-2.5 text-sm font-semibold text-white transition-all hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50"
-          >
-            {loading ? 'Đang xử lý...' : 'Đăng ký'}
+          <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+            {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
           </button>
         </form>
 
-        <div className="my-5 flex items-center gap-3">
+        <div className="my-6 flex items-center gap-3">
           <div className="h-px flex-1 bg-gray-200" />
-          <span className="text-xs text-gray-400">hoặc</span>
+          <span className="text-xs text-gray-500">hoặc</span>
           <div className="h-px flex-1 bg-gray-200" />
         </div>
 
         <div className="flex justify-center">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Đăng ký Google thất bại')}
-          />
+          <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError('Đăng ký Google thất bại')} />
         </div>
-        <p className="mt-2 text-center text-xs text-gray-400">
-          Đăng ký Google sẽ dùng vai trò đã chọn ở trên ("Bạn là")
-        </p>
+        <p className="mt-2 text-center text-xs text-gray-500">Tài khoản Google sẽ dùng vai trò bạn chọn ở trên.</p>
 
-        <p className="mt-6 text-sm text-gray-600">
+        <p className="mt-8 text-center text-sm text-gray-600">
           Đã có tài khoản?{' '}
-          <Link to="/login" className="font-medium text-rose-600 hover:underline">
+          <Link to="/login" className="link-accent">
             Đăng nhập
           </Link>
         </p>

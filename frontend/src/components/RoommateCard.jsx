@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import FavoriteButton from './FavoriteButton';
 import { GENDER_LABELS, OCCUPATION_LABELS } from '../constants/roommate';
 
 const STATUS_BADGE = {
-  HAS_ROOM: { text: 'Đã có phòng', className: 'bg-emerald-50 text-emerald-700' },
-  LOOKING_FOR_ROOM: { text: 'Đang tìm phòng', className: 'bg-amber-50 text-amber-700' },
+  HAS_ROOM: { text: 'Đã có phòng', className: 'bg-emerald-600 text-white' },
+  LOOKING_FOR_ROOM: { text: 'Đang tìm phòng', className: 'bg-white text-gray-900' },
 };
 
 function formatBudget(budget) {
-  return new Intl.NumberFormat('vi-VN').format(budget) + ' đ/tháng';
+  return new Intl.NumberFormat('vi-VN').format(budget);
 }
 
 function isNew(createdAt) {
@@ -25,6 +25,7 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
   const linkTo = isOwnProfile ? '/roommates/profile' : `/roommates/${p.id}`;
   const [activeImage, setActiveImage] = useState(0);
   const images = p.imageUrls || [];
+  const status = STATUS_BADGE[p.status];
 
   function selectImage(e, idx) {
     e.preventDefault();
@@ -41,37 +42,36 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
   return (
     <Link
       to={linkTo}
-      className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
-        isOwnProfile ? 'border-rose-300 ring-1 ring-rose-100' : 'border-gray-200 hover:border-gray-300'
+      className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-200 hover:shadow-[0_16px_32px_-20px_rgba(20,79,112,0.35)] ${
+        isOwnProfile ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200 hover:border-gray-300'
       }`}
     >
-      <div className="relative flex h-40 items-center justify-center overflow-hidden bg-gray-100 text-gray-400">
-        {isOwnProfile ? (
-          <span className="absolute left-2 top-2 z-10 rounded-full bg-rose-600 px-2.5 py-0.5 text-xs font-semibold text-white">
-            Hồ sơ của bạn
-          </span>
-        ) : (
-          isNew(p.createdAt) && (
-            <span className="absolute left-2 top-2 z-10 rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white">
-              Mới
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="absolute left-3 top-3 z-10 flex gap-1.5">
+          {isOwnProfile && (
+            <span className="rounded-full bg-blue-700 px-2.5 py-0.5 text-xs font-semibold text-white">
+              Hồ sơ của bạn
             </span>
-          )
-        )}
+          )}
+          {status && (
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${status.className}`}>{status.text}</span>
+          )}
+          {!isOwnProfile && isNew(p.createdAt) && (
+            <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-gray-900">Mới</span>
+          )}
+        </div>
         {!isOwnProfile && (
-          <FavoriteButton
-            className="absolute right-2 top-2 z-10"
-            favorited={favorited}
-            onToggle={onToggleFavorite}
-          />
+          <FavoriteButton className="absolute right-3 top-3 z-10" favorited={favorited} onToggle={onToggleFavorite} />
         )}
         {images.length > 0 ? (
           <img
             src={images[activeImage]}
             alt={p.fullName}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <span className="text-sm">Chưa có ảnh</span>
+          <div className="flex h-full items-center justify-center text-sm text-gray-400">Chưa có ảnh</div>
         )}
         {images.length > 1 && (
           <>
@@ -79,7 +79,7 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
               type="button"
               onClick={(e) => stepImage(e, -1)}
               aria-label="Ảnh trước"
-              className="absolute left-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity hover:bg-black/60 group-hover:opacity-100"
+              className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 opacity-0 shadow transition-opacity group-hover:opacity-100"
             >
               <ChevronLeft size={16} />
             </button>
@@ -87,11 +87,11 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
               type="button"
               onClick={(e) => stepImage(e, 1)}
               aria-label="Ảnh sau"
-              className="absolute right-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity hover:bg-black/60 group-hover:opacity-100"
+              className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 opacity-0 shadow transition-opacity group-hover:opacity-100"
             >
               <ChevronRight size={16} />
             </button>
-            <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1">
+            <div className="absolute bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 gap-1">
               {images.map((img, idx) => (
                 <button
                   key={img}
@@ -109,34 +109,28 @@ export default function RoommateCard({ profile, favorited, onToggleFavorite }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-1 flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-gray-900 group-hover:text-rose-600">{p.fullName}</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="truncate font-semibold text-gray-900 group-hover:text-blue-700">{p.fullName}</h3>
           {!isOwnProfile && p.compatibilityScore != null && (
-            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-rose-600 text-xs font-bold text-white">
-              {p.compatibilityScore}%
+            <span className="flex-shrink-0 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
+              Hợp {p.compatibilityScore}%
             </span>
           )}
         </div>
-        <div className="mb-3 flex flex-wrap items-center gap-1.5">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[p.status]?.className}`}
-          >
-            {STATUS_BADGE[p.status]?.text}
-          </span>
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-            {GENDER_LABELS[p.gender]}
-          </span>
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-            {OCCUPATION_LABELS[p.occupation]}
-          </span>
-        </div>
-        <div className="mt-auto flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5 text-sm">
-          <span className="min-w-0 truncate text-gray-500">
-            {(p.districts || []).join(', ') || p.city}
-          </span>
-          <span className="flex-shrink-0 whitespace-nowrap font-semibold text-rose-600">
-            {formatBudget(p.budget)}
-          </span>
+        <p className="mt-1 text-sm text-gray-500">
+          {[GENDER_LABELS[p.gender], OCCUPATION_LABELS[p.occupation]].filter(Boolean).join(' · ')}
+        </p>
+        <p className="mt-2 flex items-center gap-1 text-sm text-gray-500">
+          <MapPin size={14} className="flex-shrink-0 text-gray-400" />
+          <span className="truncate">{(p.districts || []).join(', ') || p.city}</span>
+        </p>
+
+        <div className="mt-auto pt-4">
+          <div className="border-t border-gray-100 pt-3 text-orange-600">
+            <span className="text-xs font-medium text-gray-500">Ngân sách </span>
+            <span className="text-lg font-bold">{formatBudget(p.budget)}đ</span>
+            <span className="text-sm font-medium text-orange-500">/tháng</span>
+          </div>
         </div>
       </div>
     </Link>

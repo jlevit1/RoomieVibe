@@ -18,12 +18,12 @@ export default function Pagination({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-1">
+    <nav aria-label="Phân trang" className="mt-10 flex items-center justify-center gap-1">
       <button
         type="button"
         disabled={page === 0}
         onClick={() => onChange(page - 1)}
-        className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
+        className="rounded-xl border border-gray-300 px-3.5 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 disabled:opacity-40 disabled:hover:border-gray-300"
       >
         Trước
       </button>
@@ -38,8 +38,9 @@ export default function Pagination({ page, totalPages, onChange }) {
             type="button"
             key={p}
             onClick={() => onChange(p)}
-            className={`h-8 w-8 rounded-xl text-sm transition-colors ${
-              p === page ? 'bg-rose-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+            aria-current={p === page ? 'page' : undefined}
+            className={`h-9 w-9 rounded-xl text-sm font-medium transition-colors ${
+              p === page ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
             {p + 1}
@@ -51,10 +52,10 @@ export default function Pagination({ page, totalPages, onChange }) {
         type="button"
         disabled={page + 1 >= totalPages}
         onClick={() => onChange(page + 1)}
-        className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent"
+        className="rounded-xl border border-gray-300 px-3.5 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 disabled:opacity-40 disabled:hover:border-gray-300"
       >
         Sau
       </button>
-    </div>
+    </nav>
   );
 }
