@@ -12,6 +12,18 @@ export function googleLogin(idToken, role) {
   return api.post('/auth/google', { idToken, role }).then((res) => res.data);
 }
 
+export function requestPasswordReset(email) {
+  return api.post('/auth/forgot-password', { email }).then((res) => res.data);
+}
+
+export function validateResetToken(token) {
+  return api.get('/auth/reset-password/validate', { params: { token } }).then((res) => res.data);
+}
+
+export function resetPassword(token, newPassword) {
+  return api.post('/auth/reset-password', { token, newPassword }).then((res) => res.data);
+}
+
 export function logout() {
   return api.post('/auth/logout').then((res) => res.data);
 }
