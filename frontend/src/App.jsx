@@ -2,14 +2,18 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingMessageButton from './components/FloatingMessageButton';
 import AdminLayout from './components/AdminLayout';
 import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
+import AiSearch from './pages/AiSearch';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import ListingDetail from './pages/ListingDetail';
 import PostListing from './pages/PostListing';
 import MyListings from './pages/MyListings';
@@ -29,18 +33,23 @@ import AdminDisputes from './pages/admin/AdminDisputes';
 function AppShell() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-  const hideFooter = isAdmin || isAuthPage;
+  const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
+  const isMessages = location.pathname.startsWith('/messages');
+  const hideFooter = isAdmin || isAuthPage || isMessages;
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <ScrollToTop />
       <Navbar />
       <main className="flex-1">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/ai-search" element={<AiSearch />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/listings/:id" element={<ListingDetail />} />
 
         <Route
