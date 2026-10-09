@@ -85,6 +85,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
             handleForgotPassword(request, response, filterChain);
             return;
         }
+        if (isPost && "/api/auth/reset-password/verify".equals(path)) {
+            // Each code already allows only 5 guesses; this caps guessing across many codes from one IP.
+            if (!rateLimiter.tryConsume("reset-verify:" + clientIp(request), 20, Duration.ofMinutes(15))) {
+                reject(response, "Bạn đã thử quá nhiều lần, vui lòng thử lại sau 15 phút.");
+                return;
+            }
+            filterChain.doFilter(request, response);
+            return;
+        }
         if (isPost && "/api/ai/search".equals(path)) {
             handleAiSearch(request, response, filterChain);
             return;

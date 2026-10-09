@@ -111,6 +111,9 @@ public class RoomListing {
 
     private Instant promotedUntil;
 
+    // The promotedUntil value we already sent an "expiring soon" email for, so each boost period warns once.
+    private Instant boostExpiryNoticeFor;
+
     // Computed in the same SELECT as the listing, so card lists don't need a query per listing.
     @Formula("(SELECT AVG(r.rating) FROM listing_reviews r WHERE r.listing_id = id)")
     private Double averageRating;

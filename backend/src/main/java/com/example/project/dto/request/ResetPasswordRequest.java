@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class ResetPasswordRequest {
 
-    @NotBlank(message = "Link đặt lại mật khẩu không hợp lệ")
+    @NotBlank(message = "Phiên đặt lại mật khẩu không hợp lệ, vui lòng nhập lại mã")
     private String token;
 
     @NotBlank(message = "Vui lòng nhập mật khẩu mới")

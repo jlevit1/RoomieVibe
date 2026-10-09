@@ -15,7 +15,9 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
 
     Optional<PasswordResetToken> findByTokenHash(String tokenHash);
 
-    // Requesting a new link (or using one) retires every other link still open for that account.
+    Optional<PasswordResetToken> findFirstByUserAndUsedAtIsNullOrderByCreatedAtDesc(User user);
+
+    // Requesting a new code (or finishing a reset) retires every other attempt still open for that account.
     @Modifying
     @Query("UPDATE PasswordResetToken t SET t.usedAt = :now WHERE t.user = :user AND t.usedAt IS NULL")
     int retireOpenTokens(@Param("user") User user, @Param("now") Instant now);

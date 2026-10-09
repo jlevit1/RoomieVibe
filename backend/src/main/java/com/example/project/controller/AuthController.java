@@ -1,11 +1,9 @@
 package com.example.project.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.project.dto.request.ForgotPasswordRequest;
@@ -13,7 +11,9 @@ import com.example.project.dto.request.GoogleLoginRequest;
 import com.example.project.dto.request.LoginRequest;
 import com.example.project.dto.request.RegisterRequest;
 import com.example.project.dto.request.ResetPasswordRequest;
+import com.example.project.dto.request.VerifyResetCodeRequest;
 import com.example.project.dto.response.AuthResponse;
+import com.example.project.dto.response.ResetCodeVerifiedResponse;
 import com.example.project.service.AuthService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,10 +51,9 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/reset-password/validate")
-    public ResponseEntity<Void> validateResetToken(@RequestParam String token) {
-        authService.validateResetToken(token);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/reset-password/verify")
+    public ResponseEntity<ResetCodeVerifiedResponse> verifyResetCode(@Valid @RequestBody VerifyResetCodeRequest request) {
+        return ResponseEntity.ok(authService.verifyResetCode(request));
     }
 
     @PostMapping("/reset-password")

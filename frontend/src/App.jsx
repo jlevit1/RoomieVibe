@@ -13,7 +13,7 @@ import AiSearch from './pages/AiSearch';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
+import ChangePassword from './pages/ChangePassword';
 import ListingDetail from './pages/ListingDetail';
 import PostListing from './pages/PostListing';
 import MyListings from './pages/MyListings';
@@ -33,7 +33,7 @@ import AdminDisputes from './pages/admin/AdminDisputes';
 function AppShell() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
+  const isAuthPage = ['/login', '/register', '/forgot-password', '/account/password'].includes(location.pathname);
   const isMessages = location.pathname.startsWith('/messages');
   const hideFooter = isAdmin || isAuthPage || isMessages;
 
@@ -49,7 +49,14 @@ function AppShell() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/account/password"
+          element={
+            <ProtectedRoute>
+              <ChangePassword />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/listings/:id" element={<ListingDetail />} />
 
         <Route

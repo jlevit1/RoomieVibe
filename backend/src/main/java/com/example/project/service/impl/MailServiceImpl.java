@@ -1,8 +1,6 @@
 package com.example.project.service.impl;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MailServiceImpl implements MailService {
 
     private static final String BRAND = "#1f84b8";
-    private static final ZoneId VN_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm 'ngày' dd/MM/yyyy");
 
     private final ObjectProvider<JavaMailSender> mailSender;
     private final String username;
@@ -76,15 +72,13 @@ public class MailServiceImpl implements MailService {
 
     @Async
     @Override
-    public void sendPasswordReset(User user, String resetLink, int validMinutes) {
-        Email email = new Email("Đặt lại mật khẩu RoomieVibe")
+    public void sendPasswordResetCode(User user, String code, int validMinutes) {
+        Email email = new Email("Mã xác nhận đặt lại mật khẩu: " + code)
                 .paragraph("Chào " + user.getFullName() + ",")
-                .paragraph("Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản " + user.getEmail()
-                        + ". Bấm nút bên dưới để đặt mật khẩu mới.")
-                .button("Đặt lại mật khẩu", resetLink)
-                .note("Link có hiệu lực trong " + validMinutes + " phút và chỉ dùng được một lần.")
-                .note("Nếu bạn không yêu cầu, hãy bỏ qua email này. Mật khẩu hiện tại của bạn vẫn giữ nguyên.")
-                .fallbackLink(resetLink);
+                .paragraph("Mã xác nhận để đặt lại mật khẩu cho tài khoản " + user.getEmail() + " là:")
+                .code(code)
+                .note("Mã có hiệu lực trong " + validMinutes + " phút. Không chia sẻ mã này cho bất kỳ ai, kể cả người tự xưng là RoomieVibe.")
+                .note("Nếu bạn không yêu cầu, hãy bỏ qua email này. Mật khẩu hiện tại của bạn vẫn giữ nguyên.");
         send(user, email);
     }
 
@@ -94,7 +88,7 @@ public class MailServiceImpl implements MailService {
         Email email = new Email("Mật khẩu RoomieVibe của bạn vừa được thay đổi")
                 .paragraph("Chào " + user.getFullName() + ",")
                 .paragraph("Mật khẩu tài khoản " + user.getEmail() + " vừa được đổi lúc "
-                        + TIME_FORMAT.format(Instant.now().atZone(VN_ZONE)) + ".")
+                        + Formats.dateTime(Instant.now()) + ".")
                 .paragraph("Nếu đó là bạn, bạn không cần làm gì thêm. Nếu không phải bạn, hãy đặt lại mật khẩu ngay để bảo vệ tài khoản và ví.")
                 .button("Đặt lại mật khẩu", link("/forgot-password"));
         send(user, email);
@@ -122,14 +116,30 @@ public class MailServiceImpl implements MailService {
         send(user, email);
     }
 
+    @Async
+    @Override
+    public void sendNotice(String toEmail, String toName, String subject, String message, List<String> details,
+                           String buttonLabel, String path) {
+        Email email = new Email(subject)
+                .paragraph("Chào " + toName + ",")
+                .paragraph(message);
+        if (details != null) details.forEach(email::bullet);
+        if (buttonLabel != null && path != null) email.button(buttonLabel, link(path));
+        send(toEmail, email);
+    }
+
     private String link(String path) {
         return frontendUrl + path;
     }
 
     private void send(User user, Email email) {
+        send(user.getEmail(), email);
+    }
+
+    private void send(String toEmail, Email email) {
         JavaMailSender sender = mailSender.getIfAvailable();
         if (sender == null || username.isBlank()) {
-            log.info("[MAIL - chua cau hinh SMTP, chi ghi log] To: {} | {}\n{}", user.getEmail(), email.subject, email.plainText());
+            log.info("[MAIL - chua cau hinh SMTP, chi ghi log] To: {} | {}\n{}", toEmail, email.subject, email.plainText());
             return;
         }
         try {
@@ -137,14 +147,14 @@ public class MailServiceImpl implements MailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(fromAddress, fromName);
             helper.setReplyTo(fromAddress);
-            helper.setTo(user.getEmail());
+            helper.setTo(toEmail);
             helper.setSubject(email.subject);
             helper.setText(email.plainText(), email.html(frontendUrl));
             sender.send(message);
-            log.info("Sent mail '{}' to {}", email.subject, user.getEmail());
+            log.info("Sent mail '{}' to {}", email.subject, toEmail);
         } catch (Exception e) {
             // Emails are best-effort: a mail outage must never break registration, password reset or admin actions.
-            log.error("Could not send mail '{}' to {}: {}", email.subject, user.getEmail(), e.getMessage());
+            log.error("Could not send mail '{}' to {}: {}", email.subject, toEmail, e.getMessage());
         }
     }
 
@@ -185,6 +195,15 @@ public class MailServiceImpl implements MailService {
             flushBullets();
             htmlBlocks.add("<p style=\"margin:0 0 12px;font-size:13px;line-height:20px;color:#6b7280\">" + esc(text) + "</p>");
             textBlocks.add(text);
+            return this;
+        }
+
+        Email code(String code) {
+            flushBullets();
+            htmlBlocks.add("<p style=\"margin:4px 0 24px;padding:16px 0;border-radius:12px;background:#f3f4f6;text-align:center;"
+                    + "font-family:'Courier New',monospace;font-size:32px;font-weight:700;letter-spacing:10px;color:#111827\">"
+                    + esc(code) + "</p>");
+            textBlocks.add(code);
             return this;
         }
 

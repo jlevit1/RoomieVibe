@@ -2,6 +2,7 @@ package com.example.project.service.impl;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.project.dto.response.PaymentUrlResponse;
 import com.example.project.dto.response.WalletResponse;
 import com.example.project.dto.response.WalletTransactionResponse;
+import com.example.project.entity.NotificationType;
 import com.example.project.entity.PaymentStatus;
 import com.example.project.entity.PaymentTransaction;
 import com.example.project.entity.User;
@@ -22,6 +24,8 @@ import com.example.project.repository.PaymentTransactionRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.repository.WalletTransactionRepository;
 import com.example.project.security.VNPayService;
+import com.example.project.service.NotificationService;
+import com.example.project.service.NotificationService.Mail;
 import com.example.project.service.WalletService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,7 @@ public class WalletServiceImpl implements WalletService {
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final WalletTransactionRepository walletTransactionRepository;
     private final VNPayService vnPayService;
+    private final NotificationService notificationService;
 
     @Override
     public WalletResponse getWallet(String email) {
@@ -130,8 +135,27 @@ public class WalletServiceImpl implements WalletService {
                     .balanceAfter(newBalance)
                     .relatedPayment(tx)
                     .build());
+
+            String amount = Formats.money(tx.getAmount());
+            notificationService.notifyWithMail(user, NotificationType.TOPUP_SUCCESS,
+                    "Nạp ví thành công " + amount + ". Số dư mới " + Formats.money(newBalance) + ".", "/wallet",
+                    new Mail("Nạp ví thành công " + amount,
+                            List.of("Số tiền nạp: " + amount, "Số dư hiện tại: " + Formats.money(newBalance),
+                                    "Mã giao dịch VNPay: " + params.get("vnp_TransactionNo")),
+                            "Xem ví của tôi"));
         } else {
             tx.setStatus(PaymentStatus.FAILED);
+            // 24 = the customer cancelled on the VNPay page themselves, no need to tell them what they just did.
+            if (!"24".equals(responseCode)) {
+                String amount = Formats.money(tx.getAmount());
+                notificationService.notifyWithMail(tx.getUser(), NotificationType.TOPUP_FAILED,
+                        "Nạp ví " + amount + " không thành công, ví của bạn chưa được cộng tiền.", "/wallet",
+                        new Mail("Nạp ví " + amount + " không thành công",
+                                List.of("Ngân hàng hoặc VNPay đã từ chối giao dịch (mã " + responseCode + ").",
+                                        "Nếu tài khoản ngân hàng của bạn đã bị trừ tiền, hãy liên hệ ngân hàng kèm mã giao dịch "
+                                                + params.get("vnp_TxnRef") + "."),
+                                "Thử nạp lại"));
+            }
         }
         paymentTransactionRepository.save(tx);
 

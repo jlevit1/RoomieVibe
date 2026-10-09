@@ -32,6 +32,12 @@ public interface RoomListingRepository extends JpaRepository<RoomListing, Long> 
 
     List<RoomListing> findByStatusAndLatitudeIsNotNullAndLongitudeIsNotNull(ListingStatus status);
 
+    // Boosts ending within the window whose "expiring soon" notice hasn't gone out for the current end date.
+    @Query("SELECT r FROM RoomListing r WHERE r.status = :status AND r.promotedUntil > :now AND r.promotedUntil <= :until "
+            + "AND (r.boostExpiryNoticeFor IS NULL OR r.boostExpiryNoticeFor <> r.promotedUntil)")
+    List<RoomListing> findBoostsExpiringBetween(@Param("status") ListingStatus status, @Param("now") Instant now,
+                                                @Param("until") Instant until);
+
     // Atomic bump so concurrent viewers never lose an increment; only publicly visible listings count.
     @Modifying
     @Query("UPDATE RoomListing r SET r.viewCount = r.viewCount + 1 WHERE r.id = :id AND r.status IN :statuses")

@@ -163,7 +163,7 @@ public class ChatServiceImpl implements ChatService {
                 ? otherPartyUser(conversation)
                 : conversation.getRenter();
         notificationService.notify(recipient, NotificationType.NEW_MESSAGE,
-                "Tin nhan moi tu " + user.getFullName(), "/messages/" + conversation.getId());
+                "Tin nhắn mới từ " + user.getFullName(), "/messages/" + conversation.getId());
 
         return broadcast(message);
     }
@@ -194,9 +194,14 @@ public class ChatServiceImpl implements ChatService {
                 .depositBooking(depositBooking)
                 .build());
 
-        notificationService.notify(conversation.getRenter(), NotificationType.DEPOSIT_REQUEST,
-                "Yeu cau dat coc " + amount.stripTrailingZeros().toPlainString() + "d",
-                "/messages/" + conversation.getId());
+        String money = Formats.money(amount);
+        notificationService.notifyWithMail(conversation.getRenter(), NotificationType.DEPOSIT_REQUEST,
+                "Chủ nhà yêu cầu đặt cọc " + money, "/messages/" + conversation.getId(),
+                new NotificationService.Mail("Chủ nhà yêu cầu bạn đặt cọc " + money,
+                        List.of("Phòng: \u201c" + conversation.getListing().getTitle() + "\u201d",
+                                "Số tiền: " + money,
+                                "Tiền được hệ thống giữ hộ, chỉ chuyển cho chủ nhà khi bạn xác nhận đã xem phòng."),
+                        "Xem và thanh toán"));
 
         return broadcast(message);
     }

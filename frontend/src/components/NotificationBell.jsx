@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, MessageCircle, CheckCircle2, XCircle, Wallet, KeyRound } from 'lucide-react';
+import {
+  AlertTriangle,
+  Bell,
+  CheckCircle2,
+  Clock,
+  KeyRound,
+  ListChecks,
+  MessageCircle,
+  Scale,
+  Wallet,
+  XCircle,
+  Zap,
+} from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 
 const TYPE_ICON = {
@@ -9,6 +21,16 @@ const TYPE_ICON = {
   LISTING_REJECTED: XCircle,
   DEPOSIT_REQUEST: Wallet,
   RENTAL_CONFIRMED: KeyRound,
+  DEPOSIT_PAID: Wallet,
+  DEPOSIT_COMPLETED: CheckCircle2,
+  DEPOSIT_CANCELLED: XCircle,
+  DEPOSIT_DISPUTED: AlertTriangle,
+  DEPOSIT_RESOLVED: Scale,
+  TOPUP_SUCCESS: Wallet,
+  TOPUP_FAILED: AlertTriangle,
+  BOOST_PURCHASED: Zap,
+  BOOST_EXPIRING: Clock,
+  LISTING_PENDING: ListChecks,
 };
 
 function timeAgo(iso) {

@@ -31,6 +31,7 @@ import com.example.project.entity.FavoriteListing;
 import com.example.project.entity.ListingRental;
 import com.example.project.entity.ListingStatus;
 import com.example.project.entity.NotificationType;
+import com.example.project.entity.Role;
 import com.example.project.entity.RoomListing;
 import com.example.project.entity.User;
 import com.example.project.entity.WalletTransactionType;
@@ -43,6 +44,7 @@ import com.example.project.repository.ListingRentalRepository;
 import com.example.project.repository.RoomListingRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.NotificationService;
+import com.example.project.service.NotificationService.Mail;
 import com.example.project.service.RoomListingService;
 import com.example.project.service.WalletService;
 
@@ -77,6 +79,7 @@ public class RoomListingServiceImpl implements RoomListingService {
         applyRequest(listing, request);
 
         roomListingRepository.save(listing);
+        notifyAdminsPending(listing, false);
         return toResponse(listing);
     }
 
@@ -94,7 +97,21 @@ public class RoomListingServiceImpl implements RoomListingService {
         listing.setRejectReason(null);
 
         roomListingRepository.save(listing);
+        notifyAdminsPending(listing, true);
         return toResponse(listing);
+    }
+
+    private void notifyAdminsPending(RoomListing listing, boolean edited) {
+        String title = "\u201c" + listing.getTitle() + "\u201d";
+        String who = listing.getLandlord().getFullName();
+        for (User admin : userRepository.findByRoleAndEnabledTrue(Role.ADMIN)) {
+            notificationService.notifyWithMail(admin, NotificationType.LISTING_PENDING,
+                    (edited ? "Tin được sửa, chờ duyệt lại: " : "Tin mới chờ duyệt: ") + title, "/admin/pending",
+                    new Mail(edited ? "Có tin đăng vừa sửa, cần duyệt lại" : "Có tin đăng mới cần duyệt",
+                            List.of("Tin: " + title, "Chủ nhà: " + who, "Giá: " + Formats.money(listing.getPrice()) + "/tháng",
+                                    "Khu vực: " + listing.getDistrict() + ", " + listing.getCity()),
+                            "Duyệt tin"));
+        }
     }
 
     private void applyRequest(RoomListing listing, CreateListingRequest request) {
@@ -230,8 +247,13 @@ public class RoomListingServiceImpl implements RoomListingService {
         listing.setStatus(ListingStatus.HIEN_THI);
         listing.setRejectReason(null);
         roomListingRepository.save(listing);
-        notificationService.notify(listing.getLandlord(), NotificationType.LISTING_APPROVED,
-                "Tin dang \"" + listing.getTitle() + "\" da duoc duyet", "/listings/mine");
+        String title = "\u201c" + listing.getTitle() + "\u201d";
+        notificationService.notifyWithMail(listing.getLandlord(), NotificationType.LISTING_APPROVED,
+                "Tin đăng " + title + " đã được duyệt và đang hiển thị", "/listings/" + listing.getId(),
+                new Mail("Tin đăng của bạn đã được duyệt",
+                        List.of("Tin: " + title, "Tin đã hiển thị cho mọi người tìm phòng.",
+                                "Muốn tin lên đầu danh sách? Bạn có thể đẩy tin trong mục Tin của tôi."),
+                        "Xem tin đăng"));
         return toResponse(listing);
     }
 
@@ -243,8 +265,13 @@ public class RoomListingServiceImpl implements RoomListingService {
         listing.setStatus(ListingStatus.TU_CHOI);
         listing.setRejectReason(request.getReason());
         roomListingRepository.save(listing);
-        notificationService.notify(listing.getLandlord(), NotificationType.LISTING_REJECTED,
-                "Tin dang \"" + listing.getTitle() + "\" bi tu choi: " + request.getReason(), "/listings/mine");
+        String title = "\u201c" + listing.getTitle() + "\u201d";
+        notificationService.notifyWithMail(listing.getLandlord(), NotificationType.LISTING_REJECTED,
+                "Tin đăng " + title + " bị từ chối: " + request.getReason(), "/listings/" + listing.getId() + "/edit",
+                new Mail("Tin đăng của bạn chưa được duyệt",
+                        List.of("Tin: " + title, "Lý do: " + request.getReason(),
+                                "Sửa lại theo lý do trên, tin sẽ được gửi duyệt lại."),
+                        "Sửa tin đăng"));
         return toResponse(listing);
     }
 
@@ -439,6 +466,15 @@ public class RoomListingServiceImpl implements RoomListingService {
                 : now;
         listing.setPromotedUntil(base.plus(Duration.ofDays(boostPackage.getDays())));
         roomListingRepository.save(listing);
+
+        String title = "\u201c" + listing.getTitle() + "\u201d";
+        notificationService.emailOnly(listing.getLandlord(),
+                "Bạn đã mua gói đẩy tin " + boostPackage.getDays() + " ngày cho tin " + title + ".", "/listings/mine",
+                new Mail("Biên nhận gói đẩy tin " + boostPackage.getDays() + " ngày",
+                        List.of("Tin: " + title, "Gói: " + boostPackage.getDays() + " ngày",
+                                "Số tiền: " + Formats.money(boostPackage.getPrice()),
+                                "Tin được đẩy đến hết " + Formats.dateTime(listing.getPromotedUntil())),
+                        "Xem tin của tôi"));
         return toResponse(listing);
     }
 

@@ -16,8 +16,8 @@ export function requestPasswordReset(email) {
   return api.post('/auth/forgot-password', { email }).then((res) => res.data);
 }
 
-export function validateResetToken(token) {
-  return api.get('/auth/reset-password/validate', { params: { token } }).then((res) => res.data);
+export function verifyResetCode(email, code) {
+  return api.post('/auth/reset-password/verify', { email, code }).then((res) => res.data);
 }
 
 export function resetPassword(token, newPassword) {

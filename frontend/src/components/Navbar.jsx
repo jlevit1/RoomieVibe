@@ -20,6 +20,7 @@ function accountLinks(user) {
     ...(user.role === 'LANDLORD' ? [{ to: '/listings/mine', label: 'Tin đăng của tôi' }] : []),
     ...(user.role === 'ADMIN' ? [{ to: '/admin', label: 'Trang quản trị' }] : []),
     { to: '/roommates/profile', label: 'Hồ sơ ở ghép' },
+    { to: '/account/password', label: 'Đổi mật khẩu' },
   ];
 }
 

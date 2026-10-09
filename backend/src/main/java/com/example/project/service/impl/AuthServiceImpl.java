@@ -24,7 +24,9 @@ import com.example.project.dto.request.GoogleLoginRequest;
 import com.example.project.dto.request.LoginRequest;
 import com.example.project.dto.request.RegisterRequest;
 import com.example.project.dto.request.ResetPasswordRequest;
+import com.example.project.dto.request.VerifyResetCodeRequest;
 import com.example.project.dto.response.AuthResponse;
+import com.example.project.dto.response.ResetCodeVerifiedResponse;
 import com.example.project.entity.PasswordResetToken;
 import com.example.project.entity.Role;
 import com.example.project.entity.User;
@@ -57,13 +59,13 @@ public class AuthServiceImpl implements AuthService {
     private final MailService mailService;
 
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String INVALID_RESET_LINK = "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.";
+    private static final String INVALID_RESET_SESSION = "Phiên đặt lại mật khẩu đã hết hạn. Vui lòng gửi lại mã.";
+    private static final String WRONG_CODE = "Mã xác nhận không đúng hoặc đã hết hạn.";
+    private static final String TOO_MANY_ATTEMPTS = "Bạn đã nhập sai quá nhiều lần. Vui lòng gửi mã mới.";
+    private static final int MAX_CODE_ATTEMPTS = 5;
 
     @Value("${app.password-reset.valid-minutes:30}")
     private int resetValidMinutes;
-
-    @Value("${app.frontend-url:http://localhost:5173}")
-    private String frontendUrl;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -160,21 +162,50 @@ public class AuthServiceImpl implements AuthService {
                 .filter(User::getEnabled)
                 .ifPresent(user -> {
                     resetTokenRepository.retireOpenTokens(user, Instant.now());
-                    String rawToken = newRawToken();
+                    String code = String.format("%06d", RANDOM.nextInt(1_000_000));
                     resetTokenRepository.save(PasswordResetToken.builder()
                             .user(user)
-                            .tokenHash(sha256(rawToken))
+                            // Placeholder nobody knows; the real token is issued only after the code is verified.
+                            .tokenHash(sha256(newRawToken()))
+                            .codeHash(sha256(code))
                             .expiresAt(Instant.now().plus(Duration.ofMinutes(resetValidMinutes)))
                             .build());
-                    String link = frontendUrl.replaceAll("/+$", "") + "/reset-password?token=" + rawToken;
-                    mailService.sendPasswordReset(user, link, resetValidMinutes);
+                    mailService.sendPasswordResetCode(user, code, resetValidMinutes);
                 });
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public void validateResetToken(String token) {
-        findUsableToken(token);
+    // A wrong code throws, but the attempt counter it bumped must still be saved.
+    @Transactional(noRollbackFor = BadRequestException.class)
+    public ResetCodeVerifiedResponse verifyResetCode(VerifyResetCodeRequest request) {
+        User user = userRepository.findByEmail(request.getEmail().trim())
+                .filter(User::getEnabled)
+                .orElseThrow(() -> new BadRequestException(WRONG_CODE));
+        PasswordResetToken pending = resetTokenRepository.findFirstByUserAndUsedAtIsNullOrderByCreatedAtDesc(user)
+                .filter(t -> t.getCodeHash() != null && t.isUsable())
+                .orElseThrow(() -> new BadRequestException(WRONG_CODE));
+
+        if (pending.getAttempts() >= MAX_CODE_ATTEMPTS) {
+            pending.setUsedAt(Instant.now());
+            throw new BadRequestException(TOO_MANY_ATTEMPTS);
+        }
+        boolean matches = MessageDigest.isEqual(
+                pending.getCodeHash().getBytes(StandardCharsets.UTF_8),
+                sha256(request.getCode().trim()).getBytes(StandardCharsets.UTF_8));
+        if (!matches) {
+            pending.setAttempts(pending.getAttempts() + 1);
+            if (pending.getAttempts() >= MAX_CODE_ATTEMPTS) {
+                pending.setUsedAt(Instant.now());
+                throw new BadRequestException(TOO_MANY_ATTEMPTS);
+            }
+            throw new BadRequestException(WRONG_CODE + " Bạn còn " + (MAX_CODE_ATTEMPTS - pending.getAttempts()) + " lần thử.");
+        }
+
+        String rawToken = newRawToken();
+        pending.setCodeHash(null);
+        pending.setTokenHash(sha256(rawToken));
+        pending.setExpiresAt(Instant.now().plus(Duration.ofMinutes(resetValidMinutes)));
+        return new ResetCodeVerifiedResponse(rawToken);
     }
 
     @Override
@@ -183,7 +214,7 @@ public class AuthServiceImpl implements AuthService {
         PasswordResetToken resetToken = findUsableToken(request.getToken());
         User user = resetToken.getUser();
         if (!user.getEnabled()) {
-            throw new BadRequestException(INVALID_RESET_LINK);
+            throw new BadRequestException(INVALID_RESET_SESSION);
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -193,11 +224,12 @@ public class AuthServiceImpl implements AuthService {
 
     private PasswordResetToken findUsableToken(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) {
-            throw new BadRequestException(INVALID_RESET_LINK);
+            throw new BadRequestException(INVALID_RESET_SESSION);
         }
+        // codeHash == null: the token only becomes valid after its emailed code was verified.
         return resetTokenRepository.findByTokenHash(sha256(rawToken.trim()))
-                .filter(PasswordResetToken::isUsable)
-                .orElseThrow(() -> new BadRequestException(INVALID_RESET_LINK));
+                .filter(t -> t.getCodeHash() == null && t.isUsable())
+                .orElseThrow(() -> new BadRequestException(INVALID_RESET_SESSION));
     }
 
     private static String newRawToken() {

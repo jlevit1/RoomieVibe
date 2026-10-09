@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * One "dat lai mat khau" link. Only the SHA-256 hash of the token is stored, so a leaked
- * database dump can't be used to take over accounts; the raw token only exists in the email.
+ * One "dat lai mat khau" attempt. Step 1 emails a 6-digit code (only its SHA-256 hash is stored, with a
+ * wrong-guess counter). Step 2 trades the right code for a random token that step 3 uses to set the new
+ * password; again only the token's hash is kept, so a leaked database dump can't take over accounts.
  */
 @Entity
 @Table(name = "password_reset_tokens")
@@ -41,6 +42,13 @@ public class PasswordResetToken {
 
     @Column(nullable = false, unique = true, length = 64)
     private String tokenHash;
+
+    // Hash of the emailed code; cleared once the code has been verified, so it can't be used twice.
+    @Column(length = 64)
+    private String codeHash;
+
+    @Column(nullable = false)
+    private int attempts;
 
     @Column(nullable = false)
     private Instant expiresAt;

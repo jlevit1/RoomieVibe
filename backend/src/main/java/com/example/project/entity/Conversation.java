@@ -54,6 +54,10 @@ public class Conversation {
 
     private Instant landlordLastReadAt;
 
+    // When we last emailed each side about unread messages; no new email until they have read since then.
+    private Instant renterEmailedAt;
+    private Instant landlordEmailedAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();

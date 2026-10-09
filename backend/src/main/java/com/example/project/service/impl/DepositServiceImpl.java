@@ -1,6 +1,8 @@
 package com.example.project.service.impl;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,6 +15,8 @@ import com.example.project.entity.ChatMessage;
 import com.example.project.entity.Conversation;
 import com.example.project.entity.DepositBooking;
 import com.example.project.entity.DepositStatus;
+import com.example.project.entity.NotificationType;
+import com.example.project.entity.Role;
 import com.example.project.entity.User;
 import com.example.project.entity.WalletTransaction;
 import com.example.project.entity.WalletTransactionType;
@@ -23,6 +27,8 @@ import com.example.project.repository.DepositBookingRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.repository.WalletTransactionRepository;
 import com.example.project.service.DepositService;
+import com.example.project.service.NotificationService;
+import com.example.project.service.NotificationService.Mail;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +43,7 @@ public class DepositServiceImpl implements DepositService {
     private final WalletTransactionRepository walletTransactionRepository;
     private final ChatMapper chatMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationService notificationService;
 
     @Override
     public ChatMessageResponse pay(String email, Long depositId) {
@@ -61,6 +68,23 @@ public class DepositServiceImpl implements DepositService {
 
         deposit.setStatus(DepositStatus.DA_THANH_TOAN);
         depositBookingRepository.save(deposit);
+
+        Conversation conversation = deposit.getConversation();
+        String amount = Formats.money(deposit.getAmount());
+        String room = quoted(conversation.getListing().getTitle());
+        String link = chatLink(conversation);
+        notificationService.notifyWithMail(landlordOf(conversation), NotificationType.DEPOSIT_PAID,
+                renter.getFullName() + " đã thanh toán cọc " + amount + " cho phòng " + room, link,
+                new Mail("Có người đã đặt cọc " + amount + " cho phòng của bạn",
+                        List.of("Phòng: " + room, "Người thuê: " + renter.getFullName(), "Số tiền: " + amount,
+                                "Tiền đang được hệ thống giữ. Bạn nhận được tiền khi người thuê xác nhận đã xem phòng."),
+                        "Mở cuộc trò chuyện"));
+        notificationService.emailOnly(renter,
+                "Bạn đã thanh toán cọc " + amount + " cho phòng " + room + ".", link,
+                new Mail("Biên nhận đặt cọc " + amount,
+                        List.of("Phòng: " + room, "Số tiền: " + amount, "Thời điểm: " + Formats.dateTime(Instant.now()),
+                                "Tiền được hệ thống giữ hộ, chuyển cho chủ nhà khi bạn xác nhận đã xem phòng."),
+                        "Mở cuộc trò chuyện"));
         return broadcastDepositUpdate(deposit);
     }
 
@@ -75,7 +99,8 @@ public class DepositServiceImpl implements DepositService {
             throw new BadRequestException("Ban khong co quyen huy yeu cau nay");
         }
 
-        if (deposit.getStatus() == DepositStatus.DA_THANH_TOAN) {
+        boolean wasPaid = deposit.getStatus() == DepositStatus.DA_THANH_TOAN;
+        if (wasPaid) {
             if (isRenter) {
                 // Nguoi thue tu huy sau khi da tra: mat coc, chuyen cho chu nha
                 adjustBalance(conversation.getListing().getLandlord(), deposit.getAmount(), WalletTransactionType.NHAN_COC);
@@ -89,6 +114,7 @@ public class DepositServiceImpl implements DepositService {
 
         deposit.setStatus(DepositStatus.DA_HUY);
         depositBookingRepository.save(deposit);
+        notifyCancelled(deposit, conversation, isRenter, wasPaid);
         return broadcastDepositUpdate(deposit);
     }
 
@@ -108,6 +134,19 @@ public class DepositServiceImpl implements DepositService {
 
         deposit.setStatus(DepositStatus.HOAN_THANH);
         depositBookingRepository.save(deposit);
+
+        Conversation conversation = deposit.getConversation();
+        String amount = Formats.money(deposit.getAmount());
+        String room = quoted(conversation.getListing().getTitle());
+        String link = chatLink(conversation);
+        notificationService.notifyWithMail(landlordOf(conversation), NotificationType.DEPOSIT_COMPLETED,
+                "Bạn đã nhận " + amount + " tiền cọc phòng " + room, link,
+                new Mail("Bạn đã nhận " + amount + " tiền cọc",
+                        List.of("Phòng: " + room, "Người thuê: " + renter.getFullName(), "Số tiền đã cộng vào ví: " + amount),
+                        "Xem ví của tôi"));
+        notificationService.emailOnly(renter,
+                "Bạn đã xác nhận xem phòng " + room + ". Tiền cọc " + amount + " đã chuyển cho chủ nhà.", link,
+                new Mail("Đã chốt tiền cọc " + amount, List.of("Phòng: " + room, "Số tiền: " + amount), "Mở cuộc trò chuyện"));
         return broadcastDepositUpdate(deposit);
     }
 
@@ -128,6 +167,24 @@ public class DepositServiceImpl implements DepositService {
         deposit.setStatus(DepositStatus.TRANH_CHAP);
         deposit.setDisputeReason(reason);
         depositBookingRepository.save(deposit);
+
+        String amount = Formats.money(deposit.getAmount());
+        String room = quoted(conversation.getListing().getTitle());
+        User counterpart = isRenter ? landlordOf(conversation) : conversation.getRenter();
+        notificationService.notifyWithMail(counterpart, NotificationType.DEPOSIT_DISPUTED,
+                user.getFullName() + " báo vấn đề với khoản cọc " + amount + " của phòng " + room, chatLink(conversation),
+                new Mail("Khoản cọc " + amount + " đang có tranh chấp",
+                        List.of("Phòng: " + room, "Lý do được nêu: " + reason,
+                                "Tiền cọc được giữ nguyên cho tới khi quản trị viên xử lý."),
+                        "Mở cuộc trò chuyện"));
+        for (User admin : userRepository.findByRoleAndEnabledTrue(Role.ADMIN)) {
+            notificationService.notifyWithMail(admin, NotificationType.DEPOSIT_DISPUTED,
+                    "Tranh chấp đặt cọc " + amount + " của phòng " + room, "/admin/disputes",
+                    new Mail("Có tranh chấp đặt cọc cần xử lý",
+                            List.of("Phòng: " + room, "Số tiền: " + amount, "Người báo: " + user.getFullName(),
+                                    "Lý do: " + reason),
+                            "Xử lý tranh chấp"));
+        }
         return broadcastDepositUpdate(deposit);
     }
 
@@ -154,7 +211,63 @@ public class DepositServiceImpl implements DepositService {
         }
         deposit.setResolutionNote(note);
         depositBookingRepository.save(deposit);
+
+        Conversation conversation = deposit.getConversation();
+        String amount = Formats.money(deposit.getAmount());
+        String room = quoted(conversation.getListing().getTitle());
+        String outcome = releaseToLandlord
+                ? "Quản trị viên đã chuyển " + amount + " cho chủ nhà."
+                : "Quản trị viên đã hoàn " + amount + " về ví của người thuê.";
+        List<String> details = new ArrayList<>(List.of("Phòng: " + room, "Kết quả: " + outcome));
+        if (note != null && !note.isBlank()) details.add("Ghi chú của quản trị viên: " + note);
+        for (User party : List.of(landlordOf(conversation), conversation.getRenter())) {
+            notificationService.notifyWithMail(party, NotificationType.DEPOSIT_RESOLVED,
+                    "Tranh chấp cọc phòng " + room + " đã được xử lý. " + outcome, chatLink(conversation),
+                    new Mail("Tranh chấp đặt cọc đã được xử lý", details, "Xem chi tiết"));
+        }
         return broadcastDepositUpdate(deposit);
+    }
+
+    private void notifyCancelled(DepositBooking deposit, Conversation conversation, boolean cancelledByRenter, boolean wasPaid) {
+        String amount = Formats.money(deposit.getAmount());
+        String room = quoted(conversation.getListing().getTitle());
+        String link = chatLink(conversation);
+        User renter = conversation.getRenter();
+        User landlord = landlordOf(conversation);
+        User actor = cancelledByRenter ? renter : landlord;
+        User counterpart = cancelledByRenter ? landlord : renter;
+
+        String forCounterpart;
+        String forActor = null;
+        if (!wasPaid) {
+            forCounterpart = actor.getFullName() + " đã hủy yêu cầu đặt cọc " + amount + " cho phòng " + room + ".";
+        } else if (cancelledByRenter) {
+            forCounterpart = renter.getFullName() + " đã hủy sau khi đặt cọc. Bạn nhận " + amount + " vào ví.";
+            forActor = "Bạn đã hủy khoản cọc " + amount + " sau khi thanh toán, nên khoản này chuyển cho chủ nhà.";
+        } else {
+            forCounterpart = "Chủ nhà đã hủy yêu cầu. " + amount + " đã được hoàn về ví của bạn.";
+            forActor = "Bạn đã hủy khoản cọc " + amount + ", số tiền đã hoàn về ví người thuê.";
+        }
+        notificationService.notifyWithMail(counterpart, NotificationType.DEPOSIT_CANCELLED, forCounterpart, link,
+                new Mail("Yêu cầu đặt cọc " + amount + " đã bị hủy", List.of("Phòng: " + room, "Số tiền: " + amount),
+                        "Mở cuộc trò chuyện"));
+        if (forActor != null) {
+            notificationService.emailOnly(actor, forActor, link,
+                    new Mail("Bạn đã hủy khoản cọc " + amount, List.of("Phòng: " + room, "Số tiền: " + amount),
+                            "Mở cuộc trò chuyện"));
+        }
+    }
+
+    private static User landlordOf(Conversation conversation) {
+        return conversation.getListing().getLandlord();
+    }
+
+    private static String chatLink(Conversation conversation) {
+        return "/messages/" + conversation.getId();
+    }
+
+    private static String quoted(String title) {
+        return "\u201c" + title + "\u201d";
     }
 
     private void adjustBalance(User user, BigDecimal delta, WalletTransactionType type) {
